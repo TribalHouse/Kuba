@@ -222,6 +222,146 @@ Webflow.push(function () {
 });
 </script>
 
+<!-- Swap A Car Form -->
+<script>
+$(document).ready(function() {
+
+    $('[wr-type="error"]').hide(); 
+    $('[wr-type="required-field"]').removeClass('error');
+
+    const fieldError = function(field) {
+        field.siblings('[wr-type="error"]').show(); 
+        field.addClass('error'); 
+    };
+
+    // Click on the Submit button
+    $('[wr-type="submit"]').click(function() {
+        let formErrors = false;
+        $('[wr-type="required-field"]').each(function() {
+            if ($(this).val().length === 0) { 
+                fieldError($(this));
+                formErrors = true;
+            } else if ($(this).attr('type') === 'email' 
+                && ($(this).val().indexOf('@') === -1 || $(this).val().indexOf('.') === -1)) {
+                fieldError($(this));
+                formErrors = true;
+            }
+        });
+        if (!formErrors) $(this).parents('form').submit();
+    });
+
+    $('[wr-type="required-field"]').on('keypress blur', function() {
+        $(this).removeClass('error');
+        $(this).siblings('[wr-type="error"]').hide();
+    });
+
+    $('input, textarea').keypress(function(e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            $(this).trigger("change");
+            $('[wr-type="submit"]').click();
+        }
+    });
+
+
+    const swapForm = document.getElementById("swapSlider");
+
+    // Modal 1
+    const sName = $("#S-Name");
+    const sEmail = $("#S-Email");
+    const sNumber = $("#S-Phone");
+    const sliderS1 = $("#slider-s-1");
+
+    sliderS1.on("click", checkSwapFormModal1);
+
+    function checkSwapFormModal1(e) {
+        let hasError = false;
+
+        if (sName.val().length === 0) {
+            fieldError(sName);
+            hasError = true;
+        }
+
+        if (sEmail.val().length === 0 || sEmail.val().indexOf('@') === -1 || sEmail.val().indexOf('.') === -1) {
+            fieldError(sEmail);
+            hasError = true;
+        }
+
+        if (sNumber.val().length === 0) {
+            fieldError(sNumber);
+            hasError = true;
+        }
+
+        if (hasError) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+
+    // Modal 2
+    const sModel = $("#S-Model");
+    const sMake = $("#S-Make");
+    const sYear = $("#S-Year");
+    const sEngine = $("#S-Engine");
+    const sTransmission = $("#S-Transmission");
+    const sColor = $("#S-Color");
+    const sliderS2 = $("#slider-s-2");
+
+    sliderS2.on("click", checkSwapFormModal2);
+
+    function checkSwapFormModal2(e) {
+        let hasError = false;
+
+        if (sModel.val().length === 0) {
+            fieldError(sModel);
+            hasError = true;
+        }
+
+        if (sMake.val().length === 0) {
+            fieldError(sMake);
+            hasError = true;
+        }
+
+        if (sYear.val().length === 0) {
+            fieldError(sYear);
+            hasError = true;
+        }
+
+        if (sEngine.val().length === 0) {
+            fieldError(sEngine);
+            hasError = true;
+        }
+
+        if (sTransmission.val().length === 0) {
+            fieldError(sTransmission);
+            hasError = true;
+        }
+
+        if (sColor.val().length === 0) {
+            fieldError(sColor);
+            hasError = true;
+        }
+
+        if (hasError) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+
+// Last Modal
+const sInterior = document.querySelector("#S-Interior");
+const sExterior = document.querySelector("#S-Exterior");
+const sSubmit = document.querySelector("#S-Submit");
+
+sInterior.setAttribute('wr-type', 'required-field');
+sExterior.setAttribute('wr-type', 'required-field');
+
+
+});
+</script>
+
+
+
 <!-- Search Feature - Out of Accra -->
 <script>
 $(".on-page-search").on("keyup", function() {
