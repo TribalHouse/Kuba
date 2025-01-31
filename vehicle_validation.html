@@ -79,8 +79,8 @@
     -------------------------------------- */
     const withDriver = document.getElementById("with-driver");
     const selfDrive = document.getElementById("self-drive");
-    const frontUpload = document.getElementById("Driving-License-Front");
-    const backUpload = document.getElementById("Driving-License-Back");
+    const frontUpload = document.getElementById("license-upload-front");
+    const backUpload = document.getElementById("license-upload-back");
 
     // By default, check "With Driver" using the snippet logic:
     // Set withDriver.checked to false then simulate a click to toggle it ON.
@@ -101,10 +101,10 @@
         e.preventDefault();
         e.stopPropagation();
         if (frontUpload.files.length === 0) {
-          fieldError($("#Driving-License-Front"));
+          fieldError($("#license-upload-front"));
         }
         if (backUpload.files.length === 0) {
-          fieldError($("#Driving-License-Back"));
+          fieldError($("#license-upload-back"));
         }
       }
     }
