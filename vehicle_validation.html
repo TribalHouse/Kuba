@@ -1,5 +1,5 @@
+<!-- Enable multiple file uploads for all file inputs -->
 <script>
-  // Enable multiple file uploads
   $("input[type=file]").attr("multiple", "multiple");
 </script>
 
@@ -30,7 +30,7 @@
     const clearFieldError = function ($field) {
       $field.removeClass("error");
       $field.siblings('[wr-type="error"]').hide();
-      formErrors = false; // reset formErrors so the form can be submitted if all else is good
+      formErrors = false; // reset so form can submit if all else is good
     };
 
     // Handle Submit button click
@@ -82,7 +82,9 @@
     // Grab the main Rent Form
     const rentForm = document.getElementById("wf-form-Rent-Form");
 
-    // ---- First Modal ----------------------------------------------------
+    // ---------------------------------------------------------------------
+    // First Modal
+    // ---------------------------------------------------------------------
     const datePickers = rentForm.querySelectorAll(".flatpickr-input");
     const getStartedBtn = rentForm.querySelector("#slider-1");
 
@@ -103,10 +105,15 @@
 
     getStartedBtn.addEventListener("click", checkForm, true);
 
-    // ---- Second Modal ---------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Second Modal
+    // ---------------------------------------------------------------------
     const withDriver = document.getElementById("with-driver");
     const selfDrive = document.getElementById("self-drive");
-    const fileInput = rentForm.querySelector("#file");
+
+    // NEW: references for Self-Drive file inputs
+    const licenseFront = rentForm.querySelector("#license-upload-front");
+    const licenseBack = rentForm.querySelector("#license-upload-back");
 
     // By default check "With Driver"
     withDriver.checked = false;
@@ -115,15 +122,24 @@
     const nextStepBtn1 = rentForm.querySelector("#slider-2");
 
     function checkForm2(e) {
+      // Must pick either withDriver or selfDrive
       if (!withDriver.checked && !selfDrive.checked) {
         e.preventDefault();
         e.stopPropagation();
         fieldError($("#with-driver"));
         fieldError($("#self-drive"));
-      } else if (selfDrive.checked && fileInput.files.length === 0) {
-        e.preventDefault();
-        e.stopPropagation();
-        fieldError($("#file-upload"));
+      } 
+      // If Self-Drive is selected, require front and back license
+      else if (selfDrive.checked) {
+        if (
+          licenseFront.files.length === 0 ||
+          licenseBack.files.length === 0
+        ) {
+          e.preventDefault();
+          e.stopPropagation();
+          fieldError($("#license-upload-front"));
+          fieldError($("#license-upload-back"));
+        }
       }
     }
 
@@ -140,7 +156,9 @@
     withDriver.addEventListener("change", removeErrors);
     selfDrive.addEventListener("change", removeErrors);
 
-    // ---- Third Modal ----------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Third Modal
+    // ---------------------------------------------------------------------
     const airportPickup = document.getElementById("airport-pickup");
     const flightNumber = document.getElementById("flight-number");
     const flightTime = document.getElementById("flight-time");
@@ -152,7 +170,7 @@
       mode: "range",
     });
 
-    // Remove 'wr-type' and 'required' attributes from optional fields
+    // Remove 'wr-type' and 'required' from optional fields
     datePickers[1].removeAttribute("wr-type");
     flightNumber.removeAttribute("wr-type");
     flightTime.removeAttribute("wr-type");
@@ -176,9 +194,13 @@
 
     nextStepBtn2.addEventListener("click", checkForm3, true);
 
-    // ---- Fourth Modal ---------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Fourth Modal
+    // ---------------------------------------------------------------------
     const outOfAccra = document.getElementById("Out-Of-Accra");
-    const nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
+    const nextStepBtn3 = rentForm.querySelector(
+      ".slide:nth-child(4) .slider-right.w-button"
+    );
     const checkbox9 = document.querySelectorAll("[name='checkbox-9']");
 
     outOfAccra.removeAttribute("required");
@@ -201,10 +223,17 @@
 
     nextStepBtn3.addEventListener("click", checkForm4, true);
 
-    // ---- Last Modal -----------------------------------------------------
-    const file2 = document.querySelectorAll("#id-upload");
-    // Make sure the second #id-upload is required
-    file2[1].setAttribute("wr-type", "required-field");
+    // ---------------------------------------------------------------------
+    // Last Modal
+    // ---------------------------------------------------------------------
+
+    // NEW: references for ID upload fields
+    const idFront = document.getElementById("id-upload-front");
+    const idBack = document.getElementById("id-upload-back");
+
+    // Make these required if you want them validated as required:
+    idFront.setAttribute("wr-type", "required-field");
+    idBack.setAttribute("wr-type", "required-field");
   });
 </script>
 
@@ -226,17 +255,23 @@
 
     // Toggle location details
     checkboxLocation.addEventListener("click", function () {
-      locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
+      locationDetails.style.display = checkboxLocation.checked
+        ? "block"
+        : "none";
     });
 
     // Toggle license details
     checkboxLicense.addEventListener("click", function () {
-      licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
+      licenseDetails.style.display = checkboxLicense.checked
+        ? "block"
+        : "none";
     });
 
     // Toggle airport details
     checkboxPickup.addEventListener("click", function () {
-      airportDetails.style.display = checkboxPickup.checked ? "block" : "none";
+      airportDetails.style.display = checkboxPickup.checked
+        ? "block"
+        : "none";
     });
   });
 </script>
