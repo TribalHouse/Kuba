@@ -260,5 +260,31 @@ window.addEventListener('load', function() {
   pageNameInput.value = window.location.href;
 
 });
+</script>
+
+
+<!-- This script lets us use any component for our arrows. This way we can position freely -->
+<script>
+var Webflow = Webflow || [];
+Webflow.push(function() {
+ var l1 = $('#flowbaseSlider .w-slider-arrow-left');
+ var r1 = $('#flowbaseSlider .w-slider-arrow-right');
+ var l2 = $('#swapSlider .w-slider-arrow-left');
+ var r2 = $('#swapSlider .w-slider-arrow-right');
+ $('#flowbaseSlider')
+   .on('click', '.slider-left', function() {
+     l1.trigger('tap');
+   })
+   .on('click', '.slider-right', function() {
+     r1.trigger('tap');
+   });
+ $('#swapSlider')
+   .on('click', '.slider-left', function() {
+     l2.trigger('tap');
+   })
+   .on('click', '.slider-right', function() {
+     r2.trigger('tap');
+   });
+});
 
 </script>
