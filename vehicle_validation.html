@@ -11,26 +11,33 @@
 
     let formErrors = false;
 
-    // Utility function to display the error state for a given field.
-    // For error icons to appear, each required field should have a sibling element with wr-type="error".
+    /**
+     * Utility function to display the error state for a given field.
+     * Assumes that each required field has a sibling element with wr-type="error".
+     * @param {object} $field - jQuery-wrapped field element
+     */
     const fieldError = function ($field) {
       $field.siblings('[wr-type="error"]').show();
       $field.addClass("error");
       formErrors = true;
     };
 
-    // Utility function to remove the error state for a given field.
+    /**
+     * Utility function to remove the error state for a given field.
+     * @param {object} $field - jQuery-wrapped field element
+     */
     const clearFieldError = function ($field) {
       $field.removeClass("error");
       $field.siblings('[wr-type="error"]').hide();
+      formErrors = false; // reset flag so the form can submit if everything is valid
     };
 
-    // Remove errors on keypress or blur for any required field.
+    // Remove errors on keypress or blur for any required field
     $('[wr-type="required-field"]').on("keypress blur", function () {
       clearFieldError($(this));
     });
 
-    // Pressing Enter triggers submission.
+    // Pressing Enter triggers submission
     $("input, textarea").on("keypress", function (e) {
       if (e.keyCode === 13) {
         e.preventDefault();
@@ -39,120 +46,85 @@
       }
     });
 
-    // Grab the main Rent Form.
+    // Grab the main Rent Form
     const rentForm = document.getElementById("wf-form-Rent-Form");
 
     /* ------------------------------------
        STEP 1: Date Range Selection
        - Input ID: "dates"
-       - Uses flatpickr with range mode.
+       - Uses flatpickr with range mode
     -------------------------------------- */
+    const datePickers = rentForm.querySelectorAll(".flatpickr-input");
     const datesInput = document.getElementById("dates");
     const fp1 = flatpickr(datesInput, {
       minDate: "today",
       mode: "range"
     });
-
-    const slider1 = document.getElementById("slider-1");
-    function validateStep1(e) {
+    const slider1 = rentForm.querySelector("#slider-1");
+    function checkForm1(e) {
       if (!datesInput.value.trim()) {
         e.preventDefault();
         e.stopPropagation();
         fieldError($("#dates"));
-        return false;
       }
-      return true;
     }
-    slider1.addEventListener("click", function (e) {
-      if (validateStep1(e)) {
-        Webflow.push(function () {
-          // Navigate to Step 2 (insert Webflow navigation code here)
-        });
-      }
-    }, true);
+    slider1.addEventListener("click", checkForm1, true);
 
     /* ------------------------------------
        STEP 2: With Driver / Self Drive
        - Checkbox IDs: "with-driver" and "self-drive"
-       - License file upload inputs: "Driving-License-Front" & "Driving-License-Back"
-       - License details container IDs: "license-details-front" and "license-details-back"
+       - License upload inputs: "Driving-License-Front" and "Driving-License-Back"
+       - (If Self Drive is selected, both uploads are required)
+       - Use the logic from the provided code snippet
     -------------------------------------- */
-    // Force default selection using jQuery.
-    $("#with-driver").prop("checked", true);
-    $("#self-drive").prop("checked", false);
-
     const withDriver = document.getElementById("with-driver");
     const selfDrive = document.getElementById("self-drive");
-    const licenseFront = document.getElementById("Driving-License-Front");
-    const licenseBack = document.getElementById("Driving-License-Back");
-    const licenseDetailsFront = document.getElementById("license-details-front");
-    const licenseDetailsBack = document.getElementById("license-details-back");
+    const frontUpload = document.getElementById("Driving-License-Front");
+    const backUpload = document.getElementById("Driving-License-Back");
 
-    // Hide license details by default.
-    $("#license-details-front, #license-details-back").hide();
+    // By default, check "With Driver" using the snippet logic:
+    // Set withDriver.checked to false then simulate a click to toggle it ON.
+    withDriver.checked = false;
+    withDriver.click();
 
-    // Function to toggle license details based on the driver option.
-    function toggleLicenseDetails() {
-      if ($("#self-drive").is(":checked")) {
-        // When Self Drive is selected, uncheck With Driver and show license upload fields.
-        $("#with-driver").prop("checked", false);
-        $("#license-details-front, #license-details-back").show();
-      } else {
-        // When With Driver is selected, ensure it remains checked and hide license upload fields.
-        $("#with-driver").prop("checked", true);
-        $("#license-details-front, #license-details-back").hide();
-        clearFieldError($("#Driving-License-Front"));
-        clearFieldError($("#Driving-License-Back"));
-      }
-    }
-    // Update display on load.
-    toggleLicenseDetails();
-    // Use change event so the state updates as soon as the checkbox changes.
-    $("#with-driver, #self-drive").on("change", toggleLicenseDetails);
-
-    const slider2 = document.getElementById("slider-2");
-    function validateStep2(e) {
-      // Ensure at least one option is selected.
-      if (!$("#with-driver").is(":checked") && !$("#self-drive").is(":checked")) {
+    const slider2 = rentForm.querySelector("#slider-2");
+    function checkForm2(e) {
+      // If neither option is checked, show errors
+      if (!withDriver.checked && !selfDrive.checked) {
         e.preventDefault();
         e.stopPropagation();
         fieldError($("#with-driver"));
         fieldError($("#self-drive"));
-        return false;
       }
-      // If Self Drive is selected, both license uploads are required.
-      if ($("#self-drive").is(":checked")) {
-        let valid = true;
-        if (licenseFront.files.length === 0) {
+      // If Self Drive is selected, both file uploads must be provided
+      else if (selfDrive.checked && (frontUpload.files.length === 0 || backUpload.files.length === 0)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (frontUpload.files.length === 0) {
           fieldError($("#Driving-License-Front"));
-          valid = false;
         }
-        if (licenseBack.files.length === 0) {
+        if (backUpload.files.length === 0) {
           fieldError($("#Driving-License-Back"));
-          valid = false;
-        }
-        if (!valid) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
         }
       }
-      return true;
     }
-    slider2.addEventListener("click", function (e) {
-      if (validateStep2(e)) {
-        Webflow.push(function () {
-          // Navigate to Step 3
-        });
+    slider2.addEventListener("click", checkForm2, true);
+
+    // Remove errors when either checkbox changes
+    function removeStep2Errors() {
+      if (withDriver.checked || selfDrive.checked) {
+        clearFieldError($("#with-driver"));
+        clearFieldError($("#self-drive"));
       }
-    }, true);
+    }
+    withDriver.addEventListener("change", removeStep2Errors);
+    selfDrive.addEventListener("change", removeStep2Errors);
 
     /* ------------------------------------
        STEP 3: Airport Pickup Details
        - Checkbox ID: "airport-pickup"
-       - Inputs: "flight-number", "flight-time", "pick-up-drop-off-date"
-       - Container for these details: "airportpick-details"
-       - Uses flatpickr on the pickup/drop-off date.
+       - Inputs: "flight-number", "flight-time", and pickup/drop-off date (ID: "pick-up-drop-off-date")
+       - Uses flatpickr on the pickup/drop-off date
     -------------------------------------- */
     const airportPickup = document.getElementById("airport-pickup");
     const flightNumber = document.getElementById("flight-number");
@@ -162,27 +134,17 @@
       minDate: "today",
       mode: "range"
     });
+    // Remove optional field attributes so they don't trigger validation unless needed
+    pickupDateInput.removeAttribute("wr-type");
+    pickupDateInput.removeAttribute("required");
+    flightNumber.removeAttribute("wr-type");
+    flightNumber.removeAttribute("required");
+    flightTime.removeAttribute("wr-type");
+    flightTime.removeAttribute("required");
 
-    // Hide the Airport Pickup details container by default.
-    $("#airportpick-details").hide();
-
-    // Remove wr-type and required attributes from optional fields.
-    if (pickupDateInput) {
-      pickupDateInput.removeAttribute("wr-type");
-      pickupDateInput.removeAttribute("required");
-    }
-    if (flightNumber) {
-      flightNumber.removeAttribute("wr-type");
-      flightNumber.removeAttribute("required");
-    }
-    if (flightTime) {
-      flightTime.removeAttribute("wr-type");
-      flightTime.removeAttribute("required");
-    }
-
-    const slider3 = document.getElementById("slider-3");
-    function validateStep3(e) {
-      if ($("#airport-pickup").is(":checked")) {
+    const slider3 = rentForm.querySelector("#slider-3");
+    function checkForm3(e) {
+      if (airportPickup.checked) {
         let valid = true;
         if (!flightNumber.value.trim()) {
           fieldError($("#flight-number"));
@@ -199,61 +161,42 @@
         if (!valid) {
           e.preventDefault();
           e.stopPropagation();
-          return false;
         }
       }
-      return true;
     }
-    slider3.addEventListener("click", function (e) {
-      if (validateStep3(e)) {
-        Webflow.push(function () {
-          // Navigate to Step 4
-        });
-      }
-    }, true);
-
-    // Show/hide Airport Pickup details based on the checkbox selection.
-    $("#airport-pickup").on("change", function () {
-      $("#airportpick-details").toggle($(this).is(":checked"));
-    });
+    slider3.addEventListener("click", checkForm3, true);
 
     /* ------------------------------------
        STEP 4: Out-Of-Accra Region Selection
        - Checkbox ID: "Out-Of-Accra"
-       - Region checkboxes must have the name "location-checkbox"
-       - Container for region selection: "location-details"
+       - Region checkboxes: use the provided logic (from the snippet) with name "checkbox-9"
+       - (At least one region must be selected if Out-Of-Accra is checked)
     -------------------------------------- */
-    // Force default state using jQuery.
-    $("#Out-Of-Accra").prop("checked", false);
-    $("#location-details").hide();
-
-    const slider4 = document.getElementById("slider-4");
-    function validateStep4(e) {
-      if ($("#Out-Of-Accra").is(":checked")) {
-        // At least one region checkbox (name "location-checkbox") must be selected.
-        if ($("input[name='location-checkbox']:checked").length === 0) {
+    const outOfAccra = document.getElementById("Out-Of-Accra");
+    // Use the snippet logic: remove the "required" attribute
+    outOfAccra.removeAttribute("required");
+    // The provided snippet selects region checkboxes using name "checkbox-9"
+    const regionCheckboxes = document.querySelectorAll("[name='checkbox-9']");
+    // The snippet uses a specific next-step button from the fourth slide:
+    const slider4 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
+    function checkForm4(e) {
+      if (outOfAccra.checked) {
+        let regionSelected = false;
+        for (let i = 0; i < regionCheckboxes.length; i++) {
+          if (regionCheckboxes[i].checked) {
+            regionSelected = true;
+            break;
+          }
+        }
+        if (!regionSelected) {
           e.preventDefault();
           e.stopPropagation();
-          fieldError($("#location-details"));
-          return false;
-        } else {
-          clearFieldError($("#location-details"));
         }
       }
-      return true;
     }
-    slider4.addEventListener("click", function (e) {
-      if (validateStep4(e)) {
-        Webflow.push(function () {
-          // Navigate to the Final Step
-        });
-      }
-    }, true);
-
-    // Toggle region selection details when Out-Of-Accra is changed.
-    $("#Out-Of-Accra").on("change", function () {
-      $("#location-details").toggle($(this).is(":checked"));
-    });
+    if (slider4) {
+      slider4.addEventListener("click", checkForm4, true);
+    }
 
     /* ------------------------------------
        STEP 5: Final Submission - Identity Uploads
@@ -286,9 +229,66 @@
     });
   });
 
-  /* ------------------------------------
-     On Window Load: Populate Model Fields and Page URL
-  -------------------------------------- */
+  // ------------------------------------
+  // Form Customization: Show/Hide Sections Based on Selections
+  // (Out of Accra regions, Self Drive license details, Airport Pickup details)
+  // ------------------------------------
+  var Webflow = Webflow || [];
+  Webflow.push(function () {
+    var checkboxLocation = document.getElementById("Out-Of-Accra");
+    var checkboxLicense = document.getElementById("self-drive");
+    var checkboxPickup = document.getElementById("airport-pickup");
+    var locationDetails = document.getElementById("location-details");
+    var licenseDetails = document.getElementById("license-details");
+    var airportDetails = document.getElementById("airportpick-details");
+
+    // Hide these sections by default
+    if (locationDetails) locationDetails.style.display = "none";
+    if (licenseDetails) licenseDetails.style.display = "none";
+    if (airportDetails) airportDetails.style.display = "none";
+
+    // Toggle location details when Out-Of-Accra is clicked
+    if (checkboxLocation && locationDetails) {
+      checkboxLocation.addEventListener("click", function () {
+        locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
+      });
+    }
+
+    // Toggle license details when Self Drive is clicked
+    if (checkboxLicense && licenseDetails) {
+      checkboxLicense.addEventListener("click", function () {
+        licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
+      });
+    }
+
+    // Toggle airport details when Airport Pickup is clicked
+    if (checkboxPickup && airportDetails) {
+      checkboxPickup.addEventListener("click", function () {
+        airportDetails.style.display = checkboxPickup.checked ? "block" : "none";
+      });
+    }
+  });
+
+  // ------------------------------------
+  // Search Feature for Out of Accra Regions
+  // ------------------------------------
+  $(".on-page-search").on("keyup", function () {
+    var v = $(this).val();
+    $(".results").removeClass("results");
+    $(".noresults").removeClass("noresults");
+    $(".search-result").each(function () {
+      var $this = $(this);
+      if (v !== "" && $this.text().search(new RegExp(v, "gi")) !== -1) {
+        $this.addClass("results");
+      } else if (v !== "" && $this.text().search(v) !== 1) {
+        $this.addClass("noresults");
+      }
+    });
+  });
+
+  // ------------------------------------
+  // On Window Load: Populate Model Fields and Page URL
+  // ------------------------------------
   window.addEventListener("load", function () {
     const model = document.getElementById("make");
     const carName = document.getElementById("car-name");
