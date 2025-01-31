@@ -235,17 +235,17 @@ $(document).ready(function () {
 */
 var Webflow = Webflow || [];
 Webflow.push(function () {
-  // Hide location/license/airport details by default
   var checkboxLocation = document.getElementById("Out-Of-Accra");
-  var checkboxLicense = document.getElementById("self-drive");
-  var checkboxPickup = document.getElementById("airport-pickup");
-  var locationDetails = document.getElementById("location-details");
-  var licenseDetails = document.getElementById("license-details");
-  var airportDetails = document.getElementById("airportpick-details");
+  var checkboxLicense  = document.getElementById("self-drive");
+  var checkboxPickup   = document.getElementById("airport-pickup");
+  var locationDetails  = document.getElementById("location-details");
+  var licenseDetails   = document.getElementById("license-details");
+  var airportDetails   = document.getElementById("airportpick-details");
 
+  // **Hide these three sections by default** 
   locationDetails.style.display = "none";
-  licenseDetails.style.display = "none";
-  airportDetails.style.display = "none";
+  licenseDetails.style.display  = "none";
+  airportDetails.style.display  = "none";
 
   // Toggle location details
   checkboxLocation.addEventListener("click", function () {
