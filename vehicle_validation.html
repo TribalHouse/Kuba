@@ -122,10 +122,38 @@ const fileFront = rentForm.querySelector("#Driving-License-Front");
 const fileBack = rentForm.querySelector("#Driving-License-Back");
 const nextStepBtn1 = rentForm.querySelector("#slider-2");
 
-// By default, check "With Driver"
-withDriver.checked = false;
-withDriver.click();
+// Get the self-drive sections
+const licenseDetailsFront = document.getElementById("license-details-front");
+const licenseDetailsBack = document.getElementById("license-details-back");
 
+// Hide self-drive details by default
+licenseDetailsFront.style.display = "none";
+licenseDetailsBack.style.display = "none";
+
+// By default, select "With Driver" and ensure correct UI state
+withDriver.checked = true;
+selfDrive.checked = false;
+
+/**
+ * Toggle self-drive license details visibility
+ * - Show if selfDrive is selected
+ * - Hide if selfDrive is not selected
+ */
+function toggleLicenseDetails() {
+  if (selfDrive.checked) {
+    licenseDetailsFront.style.display = "block"; // Show front license section
+    licenseDetailsBack.style.display = "block";  // Show back license section
+  } else {
+    licenseDetailsFront.style.display = "none"; // Hide front license section
+    licenseDetailsBack.style.display = "none";  // Hide back license section
+  }
+}
+
+// Ensure visibility updates when checkboxes change
+withDriver.addEventListener("change", toggleLicenseDetails);
+selfDrive.addEventListener("change", toggleLicenseDetails);
+
+// Validation function for step 2
 function checkFormStep2(e) {
   if (!withDriver.checked && !selfDrive.checked) {
     e.preventDefault();
@@ -143,20 +171,8 @@ function checkFormStep2(e) {
 }
 nextStepBtn1.addEventListener("click", checkFormStep2, true);
 
-function removeDriverErrors() {
-  if (withDriver.checked || selfDrive.checked) {
-    clearFieldError($("#with-driver"));
-    clearFieldError($("#self-drive"));
-  }
-  // Clear errors for file inputs when they are selected
-  if (fileFront.files.length > 0) clearFieldError($("#Driving-License-Front"));
-  if (fileBack.files.length > 0) clearFieldError($("#Driving-License-Back"));
-}
-
-withDriver.addEventListener("change", removeDriverErrors);
-selfDrive.addEventListener("change", removeDriverErrors);
-fileFront.addEventListener("change", () => clearFieldError($("#Driving-License-Front")));
-fileBack.addEventListener("change", () => clearFieldError($("#Driving-License-Back")));
+// Ensure license details stay hidden if page is reloaded
+document.addEventListener("DOMContentLoaded", toggleLicenseDetails);
 
 
   /*---------------------------------------------------
