@@ -77,6 +77,10 @@
        - License file upload inputs: "Driving-License-Front" & "Driving-License-Back"
        - License details container IDs: "license-details-front" and "license-details-back"
     -------------------------------------- */
+    // Force default selection using jQuery.
+    $("#with-driver").prop("checked", true);
+    $("#self-drive").prop("checked", false);
+
     const withDriver = document.getElementById("with-driver");
     const selfDrive = document.getElementById("self-drive");
     const licenseFront = document.getElementById("Driving-License-Front");
@@ -84,24 +88,19 @@
     const licenseDetailsFront = document.getElementById("license-details-front");
     const licenseDetailsBack = document.getElementById("license-details-back");
 
-    // Set default: "With Driver" should be selected.
-    withDriver.checked = true;
-    selfDrive.checked = false;
-    if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
-    if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
+    // Hide license details by default.
+    $("#license-details-front, #license-details-back").hide();
 
     // Function to toggle license details based on the driver option.
     function toggleLicenseDetails() {
-      if (selfDrive.checked) {
+      if ($("#self-drive").is(":checked")) {
         // When Self Drive is selected, uncheck With Driver and show license upload fields.
-        withDriver.checked = false;
-        if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
-        if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
+        $("#with-driver").prop("checked", false);
+        $("#license-details-front, #license-details-back").show();
       } else {
         // When With Driver is selected, ensure it remains checked and hide license upload fields.
-        withDriver.checked = true;
-        if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
-        if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
+        $("#with-driver").prop("checked", true);
+        $("#license-details-front, #license-details-back").hide();
         clearFieldError($("#Driving-License-Front"));
         clearFieldError($("#Driving-License-Back"));
       }
@@ -109,13 +108,12 @@
     // Update display on load.
     toggleLicenseDetails();
     // Use change event so the state updates as soon as the checkbox changes.
-    withDriver.addEventListener("change", toggleLicenseDetails);
-    selfDrive.addEventListener("change", toggleLicenseDetails);
+    $("#with-driver, #self-drive").on("change", toggleLicenseDetails);
 
     const slider2 = document.getElementById("slider-2");
     function validateStep2(e) {
       // Ensure at least one option is selected.
-      if (!withDriver.checked && !selfDrive.checked) {
+      if (!$("#with-driver").is(":checked") && !$("#self-drive").is(":checked")) {
         e.preventDefault();
         e.stopPropagation();
         fieldError($("#with-driver"));
@@ -123,7 +121,7 @@
         return false;
       }
       // If Self Drive is selected, both license uploads are required.
-      if (selfDrive.checked) {
+      if ($("#self-drive").is(":checked")) {
         let valid = true;
         if (licenseFront.files.length === 0) {
           fieldError($("#Driving-License-Front"));
@@ -166,8 +164,7 @@
     });
 
     // Hide the Airport Pickup details container by default.
-    const airportDetails = document.getElementById("airportpick-details");
-    if (airportDetails) airportDetails.style.display = "none";
+    $("#airportpick-details").hide();
 
     // Remove wr-type and required attributes from optional fields.
     if (pickupDateInput) {
@@ -185,7 +182,7 @@
 
     const slider3 = document.getElementById("slider-3");
     function validateStep3(e) {
-      if (airportPickup.checked) {
+      if ($("#airport-pickup").is(":checked")) {
         let valid = true;
         if (!flightNumber.value.trim()) {
           fieldError($("#flight-number"));
@@ -216,11 +213,9 @@
     }, true);
 
     // Show/hide Airport Pickup details based on the checkbox selection.
-    if (airportPickup && airportDetails) {
-      airportPickup.addEventListener("change", function () {
-        airportDetails.style.display = airportPickup.checked ? "block" : "none";
-      });
-    }
+    $("#airport-pickup").on("change", function () {
+      $("#airportpick-details").toggle($(this).is(":checked"));
+    });
 
     /* ------------------------------------
        STEP 4: Out-Of-Accra Region Selection
@@ -228,15 +223,13 @@
        - Region checkboxes must have the name "location-checkbox"
        - Container for region selection: "location-details"
     -------------------------------------- */
-    const outOfAccra = document.getElementById("Out-Of-Accra");
-    const locationDetails = document.getElementById("location-details");
-    if (locationDetails) locationDetails.style.display = "none";
-    // Ensure Out-Of-Accra is unchecked by default.
-    outOfAccra.checked = false;
+    // Force default state using jQuery.
+    $("#Out-Of-Accra").prop("checked", false);
+    $("#location-details").hide();
 
     const slider4 = document.getElementById("slider-4");
     function validateStep4(e) {
-      if (outOfAccra.checked) {
+      if ($("#Out-Of-Accra").is(":checked")) {
         // At least one region checkbox (name "location-checkbox") must be selected.
         if ($("input[name='location-checkbox']:checked").length === 0) {
           e.preventDefault();
@@ -258,11 +251,9 @@
     }, true);
 
     // Toggle region selection details when Out-Of-Accra is changed.
-    if (outOfAccra && locationDetails) {
-      outOfAccra.addEventListener("change", function () {
-        locationDetails.style.display = outOfAccra.checked ? "block" : "none";
-      });
-    }
+    $("#Out-Of-Accra").on("change", function () {
+      $("#location-details").toggle($(this).is(":checked"));
+    });
 
     /* ------------------------------------
        STEP 5: Final Submission - Identity Uploads
