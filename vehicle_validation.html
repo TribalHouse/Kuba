@@ -116,108 +116,116 @@ $(document).ready(function () {
    STEP 2: Second Modal => #slider-2
    Validate "With Driver" vs. "Self Drive"
 ----------------------------------------------------*/
-const withDriver = document.getElementById("with-driver");
-const selfDrive = document.getElementById("self-drive");
-const fileFront = document.getElementById("Driving-License-Front");
-const fileBack = document.getElementById("Driving-License-Back");
-const nextStepBtn1 = document.getElementById("slider-2");
+$(document).ready(function () {
+  "use strict";
 
-// Get self-drive license upload sections
-const licenseDetailsFront = document.getElementById("license-details-front");
-const licenseDetailsBack = document.getElementById("license-details-back");
+  const rentForm = document.getElementById("wf-form-Rent-Form");
 
-// Hide self-drive file upload sections by default
-licenseDetailsFront.style.display = "none";
-licenseDetailsBack.style.display = "none";
+  // Select the elements for the step
+  const withDriver = document.getElementById("with-driver");
+  const selfDrive = document.getElementById("self-drive");
+  const fileFront = document.getElementById("Driving-License-Front");
+  const fileBack = document.getElementById("Driving-License-Back");
+  const nextStepBtn1 = document.getElementById("slider-2");
 
-// Ensure the correct default selection (With Driver checked)
-withDriver.checked = true;
-selfDrive.checked = false;
+  // Select the license detail sections
+  const licenseDetailsFront = document.getElementById("license-details-front");
+  const licenseDetailsBack = document.getElementById("license-details-back");
 
-/**
- * Toggle visibility of self-drive license upload sections
- */
-function toggleLicenseDetails() {
-  if (selfDrive.checked) {
-    licenseDetailsFront.style.display = "block"; // Show front license section
-    licenseDetailsBack.style.display = "block";  // Show back license section
-  } else {
-    licenseDetailsFront.style.display = "none"; // Hide front license section
-    licenseDetailsBack.style.display = "none";  // Hide back license section
-  }
-}
+  // Hide self-drive details by default
+  licenseDetailsFront.style.display = "none";
+  licenseDetailsBack.style.display = "none";
 
-// Attach event listeners for checkbox changes
-withDriver.addEventListener("change", toggleLicenseDetails);
-selfDrive.addEventListener("change", toggleLicenseDetails);
+  // Set "With Driver" as default selection
+  withDriver.checked = true;
+  selfDrive.checked = false;
 
-/**
- * Validation function for Step 2
- */
-function checkFormStep2(e) {
-  let hasErrors = false;
-
-  // Ensure at least one selection is made
-  if (!withDriver.checked && !selfDrive.checked) {
-    e.preventDefault();
-    e.stopPropagation();
-    fieldError($("#with-driver"));
-    fieldError($("#self-drive"));
-    hasErrors = true;
-  } else {
-    clearFieldError($("#with-driver"));
-    clearFieldError($("#self-drive"));
-  }
-
-  // If "Self Drive" is selected, require both files to be uploaded
-  if (selfDrive.checked) {
-    if (fileFront.files.length === 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      fieldError($("#Driving-License-Front"));
-      hasErrors = true;
+  /**
+   * Function to toggle license details visibility
+   */
+  function toggleLicenseDetails() {
+    if (selfDrive.checked) {
+      licenseDetailsFront.style.display = "block"; // Show front license section
+      licenseDetailsBack.style.display = "block";  // Show back license section
     } else {
-      clearFieldError($("#Driving-License-Front"));
-    }
-
-    if (fileBack.files.length === 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      fieldError($("#Driving-License-Back"));
-      hasErrors = true;
-    } else {
-      clearFieldError($("#Driving-License-Back"));
+      licenseDetailsFront.style.display = "none"; // Hide front license section
+      licenseDetailsBack.style.display = "none";  // Hide back license section
     }
   }
 
-  return !hasErrors;
-}
+  // Ensure visibility updates on checkbox change
+  withDriver.addEventListener("change", toggleLicenseDetails);
+  selfDrive.addEventListener("change", toggleLicenseDetails);
 
-// Attach validation to "Next Step" button
-nextStepBtn1.addEventListener("click", checkFormStep2, true);
+  /**
+   * Validation function for Step 2
+   */
+  function checkFormStep2(e) {
+    let formErrors = false;
 
-/**
- * Clear validation errors when users select options or upload files
- */
-function removeDriverErrors() {
-  if (withDriver.checked || selfDrive.checked) {
-    clearFieldError($("#with-driver"));
-    clearFieldError($("#self-drive"));
+    // Ensure at least one selection is made
+    if (!withDriver.checked && !selfDrive.checked) {
+      e.preventDefault();
+      e.stopPropagation();
+      fieldError($("#with-driver"));
+      fieldError($("#self-drive"));
+      formErrors = true;
+    } else {
+      clearFieldError($("#with-driver"));
+      clearFieldError($("#self-drive"));
+    }
+
+    // If "Self Drive" is selected, require both files to be uploaded
+    if (selfDrive.checked) {
+      if (fileFront.files.length === 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        fieldError($("#Driving-License-Front"));
+        formErrors = true;
+      } else {
+        clearFieldError($("#Driving-License-Front"));
+      }
+
+      if (fileBack.files.length === 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        fieldError($("#Driving-License-Back"));
+        formErrors = true;
+      } else {
+        clearFieldError($("#Driving-License-Back"));
+      }
+    }
+
+    return !formErrors;
   }
-}
-function removeFileErrors() {
-  if (fileFront.files.length > 0) clearFieldError($("#Driving-License-Front"));
-  if (fileBack.files.length > 0) clearFieldError($("#Driving-License-Back"));
-}
 
-// Attach event listeners to remove errors on selection/input
-withDriver.addEventListener("change", removeDriverErrors);
-selfDrive.addEventListener("change", removeDriverErrors);
-fileFront.addEventListener("change", removeFileErrors);
-fileBack.addEventListener("change", removeFileErrors);
+  // Attach validation to "Next Step" button
+  nextStepBtn1.addEventListener("click", checkFormStep2, true);
 
-// Ensure license details stay hidden if page is reloaded
-document.addEventListener("DOMContentLoaded", toggleLicenseDetails);
+  /**
+   * Clear validation errors when users select options or upload files
+   */
+  function removeDriverErrors() {
+    if (withDriver.checked || selfDrive.checked) {
+      clearFieldError($("#with-driver"));
+      clearFieldError($("#self-drive"));
+    }
+  }
+
+  function removeFileErrors() {
+    if (fileFront.files.length > 0) clearFieldError($("#Driving-License-Front"));
+    if (fileBack.files.length > 0) clearFieldError($("#Driving-License-Back"));
+  }
+
+  // Attach event listeners to remove errors on selection/input
+  withDriver.addEventListener("change", removeDriverErrors);
+  selfDrive.addEventListener("change", removeDriverErrors);
+  fileFront.addEventListener("change", removeFileErrors);
+  fileBack.addEventListener("change", removeFileErrors);
+
+  // Ensure license details stay hidden if page is reloaded
+  document.addEventListener("DOMContentLoaded", toggleLicenseDetails);
+});
 
   /*---------------------------------------------------
    STEP 3: Third Modal => #slider-3
