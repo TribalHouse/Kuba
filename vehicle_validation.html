@@ -126,15 +126,12 @@ $(document).ready(function () {
   withDriver.click();
 
   function checkFormStep2(e) {
-    // Must select at least 1
     if (!withDriver.checked && !selfDrive.checked) {
       e.preventDefault();
       e.stopPropagation();
       fieldError($("#with-driver"));
       fieldError($("#self-drive"));
-    } 
-    // If Self Drive => at least one file must be uploaded
-    else if (selfDrive.checked && fileInput.files.length === 0) {
+    } else if (selfDrive.checked && fileInput.files.length === 0) {
       e.preventDefault();
       e.stopPropagation();
       fieldError($("#file-upload"));
@@ -142,7 +139,6 @@ $(document).ready(function () {
   }
   nextStepBtn1.addEventListener("click", checkFormStep2, true);
 
-  // Remove errors if user toggles driver checkboxes
   function removeDriverErrors() {
     if (withDriver.checked || selfDrive.checked) {
       clearFieldError($("#with-driver"));
@@ -161,19 +157,10 @@ $(document).ready(function () {
   const flightTime = document.getElementById("flight-time");
   const nextStepBtn2 = rentForm.querySelector("#slider-3");
 
-  // Initialize Flatpickr #2
   const fp2 = flatpickr(datePickers[1], {
     minDate: "today",
     mode: "range",
   });
-
-  // Remove wr-type & required from optional fields
-  datePickers[1].removeAttribute("wr-type");
-  datePickers[1].removeAttribute("required");
-  flightNumber.removeAttribute("wr-type");
-  flightNumber.removeAttribute("required");
-  flightTime.removeAttribute("wr-type");
-  flightTime.removeAttribute("required");
 
   function checkFormStep3(e) {
     if (
@@ -189,43 +176,6 @@ $(document).ready(function () {
     }
   }
   nextStepBtn2.addEventListener("click", checkFormStep3, true);
-
-  /*---------------------------------------------------
-   STEP 4: Fourth Modal => .slide:nth-child(4) .slider-right
-   "Out of Accra" => Must choose at least 1 region
-  ----------------------------------------------------*/
-  const outOfAccra = document.getElementById("Out-Of-Accra");
-  const nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
-  const checkbox9 = document.querySelectorAll("[name='checkbox-9']");
-
-  outOfAccra.removeAttribute("required");
-
-  function checkFormStep4(e) {
-    if (outOfAccra.checked) {
-      let regionSelected = false;
-      for (let i = 0; i < checkbox9.length; i++) {
-        if (checkbox9[i].checked) {
-          regionSelected = true;
-          break;
-        }
-      }
-      if (!regionSelected) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }
-  }
-  nextStepBtn3.addEventListener("click", checkFormStep4, true);
-
-  /*---------------------------------------------------
-   LAST STEP: Example => #id-upload 
-   (If you still have #id-upload fields)
-  ----------------------------------------------------*/
-  const file2 = document.querySelectorAll("#id-upload");
-  // Make sure the second #id-upload is required
-  if (file2[1]) {
-    file2[1].setAttribute("wr-type", "required-field");
-  }
 });
 
 /* 
@@ -233,35 +183,30 @@ $(document).ready(function () {
 3) Show/Hide Customization (Out of Accra, Self Drive, Airport)
 ==================================================== 
 */
-var Webflow = Webflow || [];
-Webflow.push(function () {
+window.onload = function () {
   var checkboxLocation = document.getElementById("Out-Of-Accra");
-  var checkboxLicense  = document.getElementById("self-drive");
-  var checkboxPickup   = document.getElementById("airport-pickup");
-  var locationDetails  = document.getElementById("location-details");
-  var licenseDetails   = document.getElementById("license-details");
-  var airportDetails   = document.getElementById("airportpick-details");
+  var checkboxLicense = document.getElementById("self-drive");
+  var checkboxPickup = document.getElementById("airport-pickup");
+  var locationDetails = document.getElementById("location-details");
+  var licenseDetails = document.getElementById("license-details");
+  var airportDetails = document.getElementById("airportpick-details");
 
-  // **Hide these three sections by default** 
   locationDetails.style.display = "none";
-  licenseDetails.style.display  = "none";
-  airportDetails.style.display  = "none";
+  licenseDetails.style.display = "none";
+  airportDetails.style.display = "none";
 
-  // Toggle location details
   checkboxLocation.addEventListener("click", function () {
     locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
   });
 
-  // Toggle license details
   checkboxLicense.addEventListener("click", function () {
     licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
   });
 
-  // Toggle airport details
   checkboxPickup.addEventListener("click", function () {
     airportDetails.style.display = checkboxPickup.checked ? "block" : "none";
   });
-});
+};
 
 /* 
 ====================================================
@@ -292,21 +237,12 @@ window.addEventListener("load", function () {
   const model = document.getElementById("make");
   const carName = document.getElementById("car-name");
 
-  const modelInput1 = document.getElementById("Vehicle-Model-Number");
-  const modelInput2 = document.getElementById("Vehicle-Model-Number-2");
-  const modelInput3 = document.getElementById("Vehicle-Model-Number-3");
-  const modelInput4 = document.getElementById("Vehicle-Model-Number-4");
-
+  const modelInputs = document.querySelectorAll("[id^='Vehicle-Model-Number']");
   const pageNameInput = document.getElementById("page-name");
+
   const modelInfo = model.textContent + " " + carName.textContent;
 
-  // Populate model fields
-  modelInput1.value = modelInfo;
-  modelInput2.value = modelInfo;
-  modelInput3.value = modelInfo;
-  modelInput4.value = modelInfo;
-
-  // Add page URL to the "page-name" field
+  modelInputs.forEach(input => input.value = modelInfo);
   pageNameInput.value = window.location.href;
 });
 </script>
