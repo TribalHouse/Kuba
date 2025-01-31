@@ -1,4 +1,4 @@
-<!-- Enable multiple file uploads for all file inputs -->
+<!-- Enables multiple files for all file inputs -->
 <script>
   $("input[type=file]").attr("multiple", "multiple");
 </script>
@@ -7,49 +7,58 @@
   $(document).ready(function () {
     "use strict";
 
-    // Hide all error messages initially and remove any error classes
+    //---------------------------------------------------------------
+    // Setup: Hide error messages and remove error classes on page load
+    //---------------------------------------------------------------
     $('[wr-type="error"]').hide();
     $('[wr-type="required-field"]').removeClass("error");
 
     let formErrors = false;
 
     /**
-     * Utility function to display the error state for a given field.
-     * @param {object} $field - jQuery-wrapped field element
+     * fieldError($field)
+     * -------------------
+     * Displays error messages for a field and adds an error class.
+     * Also sets a global flag (formErrors = true).
      */
     const fieldError = function ($field) {
-      $field.siblings('[wr-type="error"]').show();
-      $field.addClass("error");
+      $field.siblings('[wr-type="error"]').show(); // show the error message
+      $field.addClass("error");                    // add error class
       formErrors = true;
     };
 
     /**
-     * Utility function to remove the error state for a given field.
-     * @param {object} $field - jQuery-wrapped field element
+     * clearFieldError($field)
+     * -----------------------
+     * Hides error messages for a field and removes error class.
+     * Also resets formErrors = false so the form can submit if all else is fine.
      */
     const clearFieldError = function ($field) {
       $field.removeClass("error");
       $field.siblings('[wr-type="error"]').hide();
-      formErrors = false; // reset so form can submit if all else is good
+      formErrors = false;
     };
 
-    // Handle Submit button click
+    //---------------------------------------------------------------
+    // Final Form Submission (when user clicks the main Submit button)
+    // This validation will check ALL wr-type="required-field" fields.
+    //---------------------------------------------------------------
     $('[wr-type="submit"]').on("click", function () {
-      // Reset formErrors before each validation pass
+      // Reset formErrors before this validation pass
       formErrors = false;
 
-      // Validate all required fields
+      // 1) Loop through every wr-type="required-field"...
       $('[wr-type="required-field"]').each(function () {
         const $this = $(this);
         const val = $this.val();
 
-        // Check for empty
+        // 2) Check if empty
         if (!val) {
           fieldError($this);
           return;
         }
 
-        // Validate email fields
+        // 3) If it's an email field, check for '@' and '.'
         if (
           $this.attr("type") === "email" &&
           (val.indexOf("@") === -1 || val.indexOf(".") === -1)
@@ -59,18 +68,22 @@
         }
       });
 
-      // If no errors, submit parent form
+      // 4) If no errors, we can safely submit the parent form
       if (!formErrors) {
         $(this).parents("form").submit();
       }
     });
 
-    // Remove errors from field on keypress or blur
+    //---------------------------------------------------------------
+    // Clear errors whenever user types or blurs any required field
+    //---------------------------------------------------------------
     $('[wr-type="required-field"]').on("keypress blur", function () {
       clearFieldError($(this));
     });
 
-    // Pressing Enter triggers submission
+    //---------------------------------------------------------------
+    // Pressing "Enter" triggers the same as clicking submit
+    //---------------------------------------------------------------
     $("input, textarea").on("keypress", function (e) {
       if (e.keyCode === 13) {
         e.preventDefault();
@@ -79,57 +92,64 @@
       }
     });
 
-    // Grab the main Rent Form
+    //---------------------------------------------------------------
+    // REFERENCE: The Multi-Step "Rent Form"
+    //---------------------------------------------------------------
     const rentForm = document.getElementById("wf-form-Rent-Form");
 
-    // ---------------------------------------------------------------------
-    // First Modal
-    // ---------------------------------------------------------------------
+    //---------------------------------------------------------------
+    // STEP 1: "Slider-1"
+    // Validate the first date input (datePickers[0]) before going next
+    //---------------------------------------------------------------
     const datePickers = rentForm.querySelectorAll(".flatpickr-input");
     const getStartedBtn = rentForm.querySelector("#slider-1");
 
-    // Initialize first flatpickr (index 0)
+    // Initialize the first Flatpickr (datePickers[0])
     const fp1 = flatpickr(datePickers[0], {
       minDate: "today",
       mode: "range",
     });
 
-    // Check if the first date input is filled
-    function checkForm(e) {
+    // This function runs when user clicks the "next" button on step 1
+    function checkFormStep1(e) {
+      // If the first date input is empty => show error & block next step
       if (!datePickers[0].value) {
         e.preventDefault();
         e.stopPropagation();
-        fieldError($("#dates"));
+        fieldError($("#dates")); // (#dates) is presumably the same input or container
       }
     }
 
-    getStartedBtn.addEventListener("click", checkForm, true);
+    getStartedBtn.addEventListener("click", checkFormStep1, true);
 
-    // ---------------------------------------------------------------------
-    // Second Modal
-    // ---------------------------------------------------------------------
+    //---------------------------------------------------------------
+    // STEP 2: "Slider-2"
+    // Validates either "With Driver" or "Self-Drive" plus license uploads
+    //---------------------------------------------------------------
     const withDriver = document.getElementById("with-driver");
     const selfDrive = document.getElementById("self-drive");
 
-    // NEW: references for Self-Drive file inputs
+    // NEW: The two license upload fields if "Self Drive" is chosen
     const licenseFront = rentForm.querySelector("#license-upload-front");
     const licenseBack = rentForm.querySelector("#license-upload-back");
 
-    // By default check "With Driver"
+    // The second "next" button
+    const nextStepBtn1 = rentForm.querySelector("#slider-2");
+
+    // By default, we auto-check "With Driver"
     withDriver.checked = false;
     withDriver.click();
 
-    const nextStepBtn1 = rentForm.querySelector("#slider-2");
-
-    function checkForm2(e) {
-      // Must pick either withDriver or selfDrive
+    // This function runs when user clicks "next" on step 2
+    function checkFormStep2(e) {
+      // Must pick at least one: withDriver or selfDrive
       if (!withDriver.checked && !selfDrive.checked) {
         e.preventDefault();
         e.stopPropagation();
         fieldError($("#with-driver"));
         fieldError($("#self-drive"));
-      } 
-      // If Self-Drive is selected, require front and back license
+      }
+      // If "Self Drive" is selected => both license uploads must have files
       else if (selfDrive.checked) {
         if (
           licenseFront.files.length === 0 ||
@@ -143,34 +163,36 @@
       }
     }
 
-    nextStepBtn1.addEventListener("click", checkForm2, true);
+    nextStepBtn1.addEventListener("click", checkFormStep2, true);
 
-    // Remove errors when either checkbox changes
-    function removeErrors() {
+    // Remove driver errors if either withDriver or selfDrive changes
+    function removeDriverErrors() {
       if (withDriver.checked || selfDrive.checked) {
         clearFieldError($("#with-driver"));
         clearFieldError($("#self-drive"));
       }
     }
 
-    withDriver.addEventListener("change", removeErrors);
-    selfDrive.addEventListener("change", removeErrors);
+    withDriver.addEventListener("change", removeDriverErrors);
+    selfDrive.addEventListener("change", removeDriverErrors);
 
-    // ---------------------------------------------------------------------
-    // Third Modal
-    // ---------------------------------------------------------------------
+    //---------------------------------------------------------------
+    // STEP 3: "Slider-3"
+    // Validates "Airport Pickup" info (Flight #, Time, 2nd dateRange)
+    //---------------------------------------------------------------
     const airportPickup = document.getElementById("airport-pickup");
     const flightNumber = document.getElementById("flight-number");
     const flightTime = document.getElementById("flight-time");
     const nextStepBtn2 = rentForm.querySelector("#slider-3");
 
-    // Initialize second flatpickr (index 1)
+    // Initialize the second Flatpickr (datePickers[1])
     const fp2 = flatpickr(datePickers[1], {
       minDate: "today",
       mode: "range",
     });
 
-    // Remove 'wr-type' and 'required' from optional fields
+    // Because these fields are optional if Airport Pickup is NOT checked,
+    // we remove wr-type="required-field" from them
     datePickers[1].removeAttribute("wr-type");
     flightNumber.removeAttribute("wr-type");
     flightTime.removeAttribute("wr-type");
@@ -178,7 +200,9 @@
     flightNumber.removeAttribute("required");
     flightTime.removeAttribute("required");
 
-    function checkForm3(e) {
+    // This function runs when user clicks "next" on step 3
+    // Only validate flight info IF airportPickup is checked
+    function checkFormStep3(e) {
       if (
         airportPickup.checked &&
         (!flightNumber.value || !flightTime.value || !datePickers[1].value)
@@ -192,20 +216,22 @@
       }
     }
 
-    nextStepBtn2.addEventListener("click", checkForm3, true);
+    nextStepBtn2.addEventListener("click", checkFormStep3, true);
 
-    // ---------------------------------------------------------------------
-    // Fourth Modal
-    // ---------------------------------------------------------------------
+    //---------------------------------------------------------------
+    // STEP 4: "slider-right.w-button" in .slide:nth-child(4)
+    // Validates region selection if "Out of Accra" is checked
+    //---------------------------------------------------------------
     const outOfAccra = document.getElementById("Out-Of-Accra");
-    const nextStepBtn3 = rentForm.querySelector(
-      ".slide:nth-child(4) .slider-right.w-button"
-    );
+    const nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
     const checkbox9 = document.querySelectorAll("[name='checkbox-9']");
 
+    // Removing required from the "Out of Accra" checkbox if it existed
     outOfAccra.removeAttribute("required");
 
-    function checkForm4(e) {
+    // This function runs when user clicks "next" on step 4
+    // If Out of Accra is checked => must select at least 1 region
+    function checkFormStep4(e) {
       if (outOfAccra.checked) {
         let regionSelected = false;
         for (let i = 0; i < checkbox9.length; i++) {
@@ -217,21 +243,24 @@
         if (!regionSelected) {
           e.preventDefault();
           e.stopPropagation();
+          // NOTE: This code does NOT show a direct field error message,
+          // but it prevents going to the next step if no region is selected.
         }
       }
     }
 
-    nextStepBtn3.addEventListener("click", checkForm4, true);
+    nextStepBtn3.addEventListener("click", checkFormStep4, true);
 
-    // ---------------------------------------------------------------------
-    // Last Modal
-    // ---------------------------------------------------------------------
-
-    // NEW: references for ID upload fields
+    //---------------------------------------------------------------
+    // Last Modal: ID Upload
+    //  - #id-upload-front
+    //  - #id-upload-back
+    // We make them required if they must be validated on final submission
+    //---------------------------------------------------------------
     const idFront = document.getElementById("id-upload-front");
     const idBack = document.getElementById("id-upload-back");
 
-    // Make these required if you want them validated as required:
+    // Setting these as required
     idFront.setAttribute("wr-type", "required-field");
     idBack.setAttribute("wr-type", "required-field");
   });
@@ -241,7 +270,7 @@
 <script>
   var Webflow = Webflow || [];
   Webflow.push(function () {
-    // Get elements and hide location and license details by default
+    // Basic show/hide sections
     var checkboxLocation = document.getElementById("Out-Of-Accra");
     var checkboxLicense = document.getElementById("self-drive");
     var checkboxPickup = document.getElementById("airport-pickup");
@@ -255,23 +284,17 @@
 
     // Toggle location details
     checkboxLocation.addEventListener("click", function () {
-      locationDetails.style.display = checkboxLocation.checked
-        ? "block"
-        : "none";
+      locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
     });
 
     // Toggle license details
     checkboxLicense.addEventListener("click", function () {
-      licenseDetails.style.display = checkboxLicense.checked
-        ? "block"
-        : "none";
+      licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
     });
 
     // Toggle airport details
     checkboxPickup.addEventListener("click", function () {
-      airportDetails.style.display = checkboxPickup.checked
-        ? "block"
-        : "none";
+      airportDetails.style.display = checkboxPickup.checked ? "block" : "none";
     });
   });
 </script>
@@ -295,7 +318,7 @@
 </script>
 
 <script>
-  // On window load, populate model fields and page URL
+  // On window load, set the "Vehicle Model" hidden fields & page URL
   window.addEventListener("load", function () {
     const model = document.getElementById("make");
     const carName = document.getElementById("car-name");
