@@ -118,9 +118,9 @@ $(document).ready(function () {
 ----------------------------------------------------*/
 const withDriver = document.getElementById("with-driver");
 const selfDrive = document.getElementById("self-drive");
-const fileFront = rentForm.querySelector("#Driving-License-Front");
-const fileBack = rentForm.querySelector("#Driving-License-Back");
-const nextStepBtn1 = rentForm.querySelector("#slider-2");
+const fileFront = document.getElementById("Driving-License-Front");
+const fileBack = document.getElementById("Driving-License-Back");
+const nextStepBtn1 = document.getElementById("slider-2");
 
 // Get the self-drive sections
 const licenseDetailsFront = document.getElementById("license-details-front");
@@ -130,7 +130,7 @@ const licenseDetailsBack = document.getElementById("license-details-back");
 licenseDetailsFront.style.display = "none";
 licenseDetailsBack.style.display = "none";
 
-// By default, select "With Driver" and ensure correct UI state
+// Ensure the correct default selection (With Driver checked by default)
 withDriver.checked = true;
 selfDrive.checked = false;
 
@@ -153,23 +153,57 @@ function toggleLicenseDetails() {
 withDriver.addEventListener("change", toggleLicenseDetails);
 selfDrive.addEventListener("change", toggleLicenseDetails);
 
-// Validation function for step 2
+// Validation function for Step 2
 function checkFormStep2(e) {
+  let hasErrors = false;
+
   if (!withDriver.checked && !selfDrive.checked) {
     e.preventDefault();
     e.stopPropagation();
     fieldError($("#with-driver"));
     fieldError($("#self-drive"));
-  } 
-  // If Self Drive => Both Driving License files must be uploaded
-  else if (selfDrive.checked && (fileFront.files.length === 0 || fileBack.files.length === 0)) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (fileFront.files.length === 0) fieldError($("#Driving-License-Front"));
-    if (fileBack.files.length === 0) fieldError($("#Driving-License-Back"));
+    hasErrors = true;
   }
+
+  // If Self Drive => Both Driving License files must be uploaded
+  if (selfDrive.checked) {
+    if (fileFront.files.length === 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      fieldError($("#Driving-License-Front"));
+      hasErrors = true;
+    }
+    if (fileBack.files.length === 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      fieldError($("#Driving-License-Back"));
+      hasErrors = true;
+    }
+  }
+
+  return !hasErrors;
 }
 nextStepBtn1.addEventListener("click", checkFormStep2, true);
+
+/**
+ * Clear errors when selecting files or toggling driver options
+ */
+function removeDriverErrors() {
+  if (withDriver.checked || selfDrive.checked) {
+    clearFieldError($("#with-driver"));
+    clearFieldError($("#self-drive"));
+  }
+}
+function removeFileErrors() {
+  if (fileFront.files.length > 0) clearFieldError($("#Driving-License-Front"));
+  if (fileBack.files.length > 0) clearFieldError($("#Driving-License-Back"));
+}
+
+// Attach event listeners
+withDriver.addEventListener("change", removeDriverErrors);
+selfDrive.addEventListener("change", removeDriverErrors);
+fileFront.addEventListener("change", removeFileErrors);
+fileBack.addEventListener("change", removeFileErrors);
 
 // Ensure license details stay hidden if page is reloaded
 document.addEventListener("DOMContentLoaded", toggleLicenseDetails);
