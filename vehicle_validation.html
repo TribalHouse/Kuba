@@ -78,47 +78,43 @@
        - Use the logic from the provided code snippet
     -------------------------------------- */
     const withDriver = document.getElementById("with-driver");
-    const selfDrive = document.getElementById("self-drive");
-    const frontUpload = document.getElementById("license-upload-front");
-    const backUpload = document.getElementById("license-upload-back");
+const selfDrive = document.getElementById("self-drive");
+const frontLicenseInput = rentForm.querySelector("#license-upload-front");
+const backLicenseInput = rentForm.querySelector("#license-upload-back");
 
-    // By default, check "With Driver" using the snippet logic:
-    // Set withDriver.checked to false then simulate a click to toggle it ON.
-    withDriver.checked = false;
-    withDriver.click();
+// By default check "With Driver"
+withDriver.checked = false;
+withDriver.click();
 
-    const slider2 = rentForm.querySelector("#slider-2");
-    function checkForm2(e) {
-      // If neither option is checked, show errors
-      if (!withDriver.checked && !selfDrive.checked) {
-        e.preventDefault();
-        e.stopPropagation();
-        fieldError($("#with-driver"));
-        fieldError($("#self-drive"));
-      }
-      // If Self Drive is selected, both file uploads must be provided
-      else if (selfDrive.checked && (frontUpload.files.length === 0 || backUpload.files.length === 0)) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (frontUpload.files.length === 0) {
-          fieldError($("#license-upload-front"));
-        }
-        if (backUpload.files.length === 0) {
-          fieldError($("#license-upload-back"));
-        }
-      }
-    }
-    slider2.addEventListener("click", checkForm2, true);
+const nextStepBtn1 = rentForm.querySelector("#slider-2");
+
+function checkForm2(e) {
+  if (!withDriver.checked && !selfDrive.checked) {
+    e.preventDefault();
+    e.stopPropagation();
+    fieldError($("#with-driver"));
+    fieldError($("#self-drive"));
+  } else if (selfDrive.checked && (frontLicenseInput.files.length === 0 || backLicenseInput.files.length === 0)) {
+    e.preventDefault();
+    e.stopPropagation();
+    fieldError($("#license-upload-front"));
+    fieldError($("#license-upload-back"));
+  }
+}
+
+nextStepBtn1.addEventListener("click", checkForm2);
 
     // Remove errors when either checkbox changes
-    function removeStep2Errors() {
+    function removeErrors() {
       if (withDriver.checked || selfDrive.checked) {
         clearFieldError($("#with-driver"));
         clearFieldError($("#self-drive"));
       }
     }
-    withDriver.addEventListener("change", removeStep2Errors);
-    selfDrive.addEventListener("change", removeStep2Errors);
+
+    withDriver.addEventListener("change", removeErrors);
+    selfDrive.addEventListener("change", removeErrors);
+  });
 
     /* ------------------------------------
        STEP 3: Airport Pickup Details
