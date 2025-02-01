@@ -86,78 +86,67 @@
     }
     getStartedBtn.addEventListener("click", checkForm, true);
 
-    // ---- Step 2: With Driver / Self Drive ----
-    var withDriver = document.getElementById("with-driver");
-    var selfDrive = document.getElementById("self-drive");
-    var licenseFront = document.getElementById("Driving-License-Front");
-    var licenseBack = document.getElementById("Driving-License-Back");
-    var licenseDetailsFront = document.getElementById("license-details-front");
-    var licenseDetailsBack = document.getElementById("license-details-back");
+   // ---- Step 2: With Driver / Self Drive Validation ----
+var withDriver = document.getElementById("with-driver");
+var selfDrive = document.getElementById("self-drive");
+// License upload elements (licenseFront and licenseBack) have been removed.
+var licenseDetailsFront = document.getElementById("license-details-front");
+var licenseDetailsBack = document.getElementById("license-details-back");
 
-    // Set default: "With Driver" is selected.
+// Set default: "With Driver" is selected and hide license upload detail sections.
+if (withDriver) withDriver.checked = true;
+if (selfDrive) selfDrive.checked = false;
+if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
+if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
+
+// Toggle license details display based on driver option.
+function toggleLicenseDetails() {
+  if (selfDrive && selfDrive.checked) {
+    // When Self Drive is selected:
+    // - Uncheck With Driver.
+    // - Show license details sections.
+    if (withDriver) withDriver.checked = false;
+    if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
+    if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
+  } else {
+    // When Self Drive is not selected:
+    // - Ensure With Driver is checked.
+    // - Hide license details sections.
     if (withDriver) withDriver.checked = true;
-    if (selfDrive) selfDrive.checked = false;
     if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
     if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
+    // Clear any associated error states.
+    clearFieldError($("#license-details-front"));
+    clearFieldError($("#license-details-back"));
+  }
+}
+if (withDriver) withDriver.addEventListener("change", toggleLicenseDetails);
+if (selfDrive) selfDrive.addEventListener("change", toggleLicenseDetails);
 
-    // Toggle license details based on the driver option.
-    function toggleLicenseDetails() {
-      if (selfDrive && selfDrive.checked) {
-        // When Self Drive is selected, uncheck With Driver and display license upload fields.
-        if (withDriver) withDriver.checked = false;
-        if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
-        if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
-      } else {
-        // When Self Drive is not selected, force With Driver to be selected and hide license fields.
-        if (withDriver) withDriver.checked = true;
-        if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
-        if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
-        clearFieldError($("#Driving-License-Front"));
-        clearFieldError($("#Driving-License-Back"));
-      }
+// Validate Step 2 before proceeding.
+var slider2 = document.getElementById("slider-2");
+function validateStep2(e) {
+  // Ensure that at least one of the driver options is selected.
+  if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
+    e.preventDefault();
+    e.stopPropagation();
+    fieldError($("#with-driver"));
+    fieldError($("#self-drive"));
+    return false;
+  }
+  // If additional validations for Self Drive were needed (e.g. file uploads),
+  // they should be updated here to use the new element references.
+  return true;
+}
+if (slider2) {
+  slider2.addEventListener("click", function (e) {
+    if (validateStep2(e)) {
+      Webflow.push(function () {
+        // Navigate to Step 3 (insert your custom navigation logic here).
+      });
     }
-    if (withDriver) withDriver.addEventListener("change", toggleLicenseDetails);
-    if (selfDrive) selfDrive.addEventListener("change", toggleLicenseDetails);
-
-    // Validate Step 2 before proceeding.
-    var slider2 = document.getElementById("slider-2");
-    function validateStep2(e) {
-      // Prevent proceeding if neither option is checked.
-      if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
-        e.preventDefault();
-        e.stopPropagation();
-        fieldError($("#with-driver"));
-        fieldError($("#self-drive"));
-        return false;
-      }
-      // If Self Drive is selected, both license uploads must be provided.
-      if (selfDrive && selfDrive.checked) {
-        var valid = true;
-        if (!licenseFront || licenseFront.files.length === 0) {
-          fieldError($("#license-details-front"));
-          valid = false;
-        }
-        if (!licenseBack || licenseBack.files.length === 0) {
-          fieldError($("#license-details-back"));
-          valid = false;
-        }
-        if (!valid) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      }
-      return true;
-    }
-    if (slider2) {
-      slider2.addEventListener("click", function (e) {
-        if (validateStep2(e)) {
-          Webflow.push(function () {
-            // Navigate to Step 3 (insert your custom navigation logic here).
-          });
-        }
-      }, true);
-    }
+  }, true);
+}
 
     // ---- Step 3: Airport Pickup ----
     var airportPickup = document.getElementById("airport-pickup");
