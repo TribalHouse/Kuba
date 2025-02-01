@@ -34,7 +34,7 @@ $(document).ready(function () {
     if (!datePickers[0].value) {
       e.preventDefault();
       e.stopPropagation();
-      fieldError($("#dates")); // Assumes an error element is a sibling of #dates.
+      fieldError($("#dates")); // Ensure an error element exists as a sibling of #dates.
     }
   }
   getStartedBtn.addEventListener("click", checkForm, true);
@@ -42,15 +42,15 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   // Step 2: Driver Option & License Upload Validation
   // --------------------------------------------------------------
-  // Grab driver option elements.
+  // Grab the driver option checkboxes.
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
 
-  // Grab the containers that hold the file inputs for license uploads.
+  // Grab the containers for the file inputs (license uploads).
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set defaults: With Driver is checked; Self Drive is unchecked.
+  // (Your markup already sets “with-driver” as checked by default.)
   if (withDriver) withDriver.checked = true;
   if (selfDrive) selfDrive.checked = false;
 
@@ -58,8 +58,7 @@ $(document).ready(function () {
   if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
   if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
 
-  // Retrieve the file input elements within these containers.
-  // (Assumes your file input has an ID such as "file" or is the only file input inside the container.)
+  // Retrieve the file input elements from within these containers.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
 
@@ -67,19 +66,19 @@ $(document).ready(function () {
   if (licenseInputFront) $(licenseInputFront).attr("wr-type", "required-field");
   if (licenseInputBack) $(licenseInputBack).attr("wr-type", "required-field");
 
-  // Toggle display of license upload containers based on driver option.
+  // Toggle display of the license upload containers when driver options change.
   function toggleDriverOptions() {
     if (selfDrive && selfDrive.checked) {
-      // When Self Drive is selected, uncheck With Driver and show license upload containers.
+      // When Self Drive is selected, uncheck With Driver and show the file upload containers.
       if (withDriver) withDriver.checked = false;
       if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
       if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
     } else {
-      // When Self Drive is not selected, check With Driver and hide license upload containers.
+      // When Self Drive is not selected, check With Driver and hide the file upload containers.
       if (withDriver) withDriver.checked = true;
       if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
       if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
-      // Clear any error messages on these file inputs.
+      // Also clear any error states on the file inputs.
       if (licenseInputFront) clearFieldError($(licenseInputFront));
       if (licenseInputBack) clearFieldError($(licenseInputBack));
     }
@@ -87,7 +86,7 @@ $(document).ready(function () {
   if (withDriver) withDriver.addEventListener("change", toggleDriverOptions);
   if (selfDrive) selfDrive.addEventListener("change", toggleDriverOptions);
 
-  // Validate Step 2 when the "Next" button (ID "slider-2") is clicked.
+  // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
     // Ensure at least one driver option is selected.
     if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
@@ -97,7 +96,7 @@ $(document).ready(function () {
       fieldError($(selfDrive));
       return false;
     }
-    // If Self Drive is selected, both file inputs must have a file selected.
+    // If Self Drive is selected, both file inputs must have a file.
     if (selfDrive && selfDrive.checked) {
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
@@ -121,13 +120,13 @@ $(document).ready(function () {
     slider2.addEventListener("click", function (e) {
       if (validateStep2(e)) {
         Webflow.push(function () {
-          // Insert your navigation logic to move to Step 3 here.
+          // Insert navigation logic to proceed to Step 3.
         });
       }
     }, true);
   }
 
-  // When a file is uploaded, clear the error on its container.
+  // Clear file input error as soon as a file is uploaded.
   if (licenseInputFront) {
     $(licenseInputFront).on("change", function () {
       if ($(this).val()) {
@@ -144,22 +143,22 @@ $(document).ready(function () {
   }
 
   // --------------------------------------------------------------
-  // Step 3: Airport Pickup
+  // Step 3: Airport Pickup Details
   // --------------------------------------------------------------
   var airportPickup = document.getElementById("airport-pickup");
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
   var nextStepBtn2 = rentForm.querySelector("#slider-3");
 
-  // Initialize second flatpickr (for pickup/drop-off dates).
+  // Initialize the second flatpickr instance (for pickup/drop-off dates).
   var fp2 = flatpickr(datePickers[1], { minDate: "today", mode: "range" });
 
-  // Remove extra attributes from optional fields.
+  // Remove unnecessary validation attributes from optional fields.
   $(datePickers[1]).removeAttr("wr-type required");
   if (flightNumber) $(flightNumber).removeAttr("wr-type required");
   if (flightTime) $(flightTime).removeAttr("wr-type required");
 
-  // Validate airport pickup details if the option is checked.
+  // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
     var errors = [];
     if (airportPickup && airportPickup.checked) {
@@ -189,8 +188,9 @@ $(document).ready(function () {
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   var checkbox9 = document.querySelectorAll("[name='checkbox-9']");
-  if (outOfAccra) outOfAccra.removeAttribute("required");
-
+  if (outOfAccra) {
+    outOfAccra.removeAttribute("required");
+  }
   function checkForm4(e) {
     if (outOfAccra && outOfAccra.checked) {
       var regionSelected = false;
@@ -202,7 +202,7 @@ $(document).ready(function () {
       if (!regionSelected) {
         e.preventDefault();
         e.stopPropagation();
-        // Optionally, display an error message or update a placeholder.
+        // (Optional) Insert code to display an error message or update a placeholder.
       }
     }
   }
@@ -213,7 +213,7 @@ $(document).ready(function () {
   }
 
   // --------------------------------------------------------------
-  // Final Step: Additional File Upload Requirement
+  // Final Step: Additional File Upload Requirement (if any)
   // --------------------------------------------------------------
   var file2 = document.querySelectorAll("#id-upload");
   if (file2 && file2.length > 1) {
