@@ -199,7 +199,7 @@ $(document).ready(function () {
     });
   }
 
-  // --------------------------------------------------------------
+    // --------------------------------------------------------------
   // Step 3: Airport Pickup Details
   // --------------------------------------------------------------
   var airportPickup = document.getElementById("airport-pickup");
@@ -215,12 +215,30 @@ $(document).ready(function () {
   if (flightNumber) $(flightNumber).removeAttr("wr-type required");
   if (flightTime) $(flightTime).removeAttr("wr-type required");
 
-  // Clear error message when the date is selected.
-  $(datePickers[1]).on("change", function () {
+  // Clear error message when the date is selected or modified.
+  $(datePickers[1]).on("input change", function () {
     if ($(this).val()) {
       clearFieldError($(this));
     }
   });
+
+  // Clear error messages when the flight number is updated.
+  if (flightNumber) {
+    $(flightNumber).on("input change", function () {
+      if ($(this).val()) {
+        clearFieldError($(this));
+      }
+    });
+  }
+
+  // Clear error messages when the flight time is updated.
+  if (flightTime) {
+    $(flightTime).on("input change", function () {
+      if ($(this).val()) {
+        clearFieldError($(this));
+      }
+    });
+  }
 
   // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
@@ -233,7 +251,6 @@ $(document).ready(function () {
         errors.push("#flight-time");
       }
       if (!datePickers[1].value) {
-        // Assuming the error should be applied on the date input itself.
         errors.push($(datePickers[1]));
       }
     }
@@ -241,7 +258,6 @@ $(document).ready(function () {
       e.preventDefault();
       e.stopPropagation();
       errors.forEach(function (selector) {
-        // If the error item is a jQuery object, use it directly; otherwise, wrap it.
         fieldError(selector.jquery ? selector : $(selector));
       });
     }
