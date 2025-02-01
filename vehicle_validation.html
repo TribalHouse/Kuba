@@ -59,14 +59,13 @@ $(document).ready(function () {
 
   // Set default states.
   if (withDriver) {
-    $(withDriver).prop("checked", true);
-    // Only add the active styling if it’s not already present.
-    if (!$(withDriver).closest("label").hasClass("w--redirected-checked")) {
-      $(withDriver).closest("label").addClass("w--redirected-checked");
-    }
+    // Set both property and attribute to ensure it is checked.
+    $(withDriver).prop("checked", true).attr("checked", "checked");
+    // Add the active styling class if not already present.
+    $(withDriver).closest("label").addClass("w--redirected-checked");
   }
   if (selfDrive) {
-    $(selfDrive).prop("checked", false);
+    $(selfDrive).prop("checked", false).removeAttr("checked");
   }
 
   // Initially hide the license upload containers.
