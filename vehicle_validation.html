@@ -57,14 +57,14 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set default states on page load.
+  // Clear any default selection: Ensure both checkboxes start unchecked.
   if (withDriver) {
-    // Mark "With Driver" as checked by default.
-    $(withDriver).prop("checked", true).attr("checked", "checked");
-    $(withDriver).closest("label").addClass("w--redirected-checked");
+    $(withDriver).prop("checked", false).removeAttr("checked");
+    $(withDriver).closest("label").removeClass("w--redirected-checked");
   }
   if (selfDrive) {
     $(selfDrive).prop("checked", false).removeAttr("checked");
+    $(selfDrive).closest("label").removeClass("w--redirected-checked");
   }
 
   // Initially hide the license upload containers.
@@ -75,11 +75,11 @@ $(document).ready(function () {
     licenseDetailsBack.style.display = "none";
   }
 
-  // Retrieve the file input elements from within these containers.
+  // Retrieve the file input elements.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
 
-  // Apply the required-field attribute to the file inputs.
+  // Apply the required-field attribute to file inputs.
   if (licenseInputFront) {
     $(licenseInputFront).attr("wr-type", "required-field");
   }
@@ -133,7 +133,7 @@ $(document).ready(function () {
     });
   }
 
-  // Validate Step 2 when the Next button (ID "slider-2") is clicked.
+  // Validate Step 2 when the Next button is clicked.
   function validateStep2(e) {
     // If neither checkbox is selected, show error messages on their label containers.
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
@@ -196,16 +196,11 @@ $(document).ready(function () {
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
   var nextStepBtn2 = rentForm.querySelector("#slider-3");
-
-  // Initialize the second flatpickr instance (for pickup/drop-off dates).
   var fp2 = flatpickr(datePickers[1], { minDate: "today", mode: "range" });
-
-  // Remove unnecessary validation attributes from optional fields.
   $(datePickers[1]).removeAttr("wr-type required");
   if (flightNumber) $(flightNumber).removeAttr("wr-type required");
   if (flightTime) $(flightTime).removeAttr("wr-type required");
 
-  // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
     var errors = [];
     if (airportPickup && airportPickup.checked) {
