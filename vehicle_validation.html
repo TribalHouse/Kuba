@@ -57,32 +57,58 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set default states.
+  // Set default states (only on page load).
   if (withDriver) {
-    // Set with-driver as checked by default.
+    // Mark "With Driver" as checked by default.
     $(withDriver).prop("checked", true).attr("checked", "checked");
     $(withDriver).closest("label").addClass("w--redirected-checked");
-    // Listen for changes on with-driver.
+  }
+  if (selfDrive) {
+    $(selfDrive).prop("checked", false).removeAttr("checked");
+  }
+
+  // Initially hide the license upload containers.
+  if (licenseDetailsFront) {
+    licenseDetailsFront.style.display = "none";
+  }
+  if (licenseDetailsBack) {
+    licenseDetailsBack.style.display = "none";
+  }
+
+  // Retrieve the file input elements from within these containers.
+  var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
+  var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
+
+  // Apply the required-field attribute to the file inputs.
+  if (licenseInputFront) {
+    $(licenseInputFront).attr("wr-type", "required-field");
+  }
+  if (licenseInputBack) {
+    $(licenseInputBack).attr("wr-type", "required-field");
+  }
+
+  // Listen for changes on "With Driver".
+  if (withDriver) {
     withDriver.addEventListener("change", function () {
       if (withDriver.checked) {
-        // If with-driver is checked, uncheck self-drive.
+        // When "With Driver" is checked, uncheck Self Drive.
         if (selfDrive) {
           selfDrive.checked = false;
           $(selfDrive).closest("label").removeClass("w--redirected-checked");
         }
         $(withDriver).closest("label").addClass("w--redirected-checked");
       } else {
+        // If the user manually unchecks "With Driver", do not auto–revert.
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
     });
   }
+
+  // Listen for changes on "Self Drive".
   if (selfDrive) {
-    // Ensure self-drive is unchecked by default.
-    $(selfDrive).prop("checked", false).removeAttr("checked");
-    // Listen for changes on self-drive.
     selfDrive.addEventListener("change", function () {
       if (selfDrive.checked) {
-        // If self-drive is checked, uncheck with-driver.
+        // When "Self Drive" is checked, uncheck With Driver.
         if (withDriver) {
           withDriver.checked = false;
           $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -108,29 +134,9 @@ $(document).ready(function () {
     });
   }
 
-  // Initially hide the license upload containers.
-  if (licenseDetailsFront) {
-    licenseDetailsFront.style.display = "none";
-  }
-  if (licenseDetailsBack) {
-    licenseDetailsBack.style.display = "none";
-  }
-
-  // Retrieve the file input elements from within these containers.
-  var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
-  var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
-
-  // Apply the required-field attribute to the file inputs.
-  if (licenseInputFront) {
-    $(licenseInputFront).attr("wr-type", "required-field");
-  }
-  if (licenseInputBack) {
-    $(licenseInputBack).attr("wr-type", "required-field");
-  }
-
   // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
-    // If neither checkbox is selected, show error message(s).
+    // If neither checkbox is selected, show error messages.
     if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
       e.preventDefault();
       e.stopPropagation();
@@ -138,7 +144,7 @@ $(document).ready(function () {
       fieldError($(selfDrive));
       return false;
     }
-    // If self-drive is selected, validate file uploads.
+    // If Self Drive is selected, validate file uploads.
     if (selfDrive && selfDrive.checked) {
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
