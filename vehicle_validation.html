@@ -57,14 +57,14 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set default states on page load.
+  // Set default states on page load (none selected).
   if (withDriver) {
-    // Mark "With Driver" as checked by default.
-    $(withDriver).prop("checked", true).attr("checked", "checked");
-    $(withDriver).closest("label").addClass("w--redirected-checked");
+    $(withDriver).prop("checked", false).removeAttr("checked");
+    $(withDriver).closest("label").removeClass("w--redirected-checked");
   }
   if (selfDrive) {
     $(selfDrive).prop("checked", false).removeAttr("checked");
+    $(selfDrive).closest("label").removeClass("w--redirected-checked");
   }
 
   // Initially hide the license upload containers.
@@ -100,7 +100,7 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      // Clear error messages if either checkbox is selected.
+      // Clear error messages if either checkbox is now selected.
       if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
         clearFieldError($(withDriver).closest("label"));
         clearFieldError($(selfDrive).closest("label"));
@@ -135,7 +135,7 @@ $(document).ready(function () {
           licenseDetailsBack.style.display = "none";
         }
       }
-      // Clear error messages if either checkbox is selected.
+      // Clear error messages if either checkbox is now selected.
       if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
         clearFieldError($(withDriver).closest("label"));
         clearFieldError($(selfDrive).closest("label"));
