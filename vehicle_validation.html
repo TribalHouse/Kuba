@@ -59,13 +59,53 @@ $(document).ready(function () {
 
   // Set default states.
   if (withDriver) {
-    // Set both property and attribute to ensure it is checked.
+    // Set with-driver as checked by default.
     $(withDriver).prop("checked", true).attr("checked", "checked");
-    // Add the active styling class if not already present.
     $(withDriver).closest("label").addClass("w--redirected-checked");
+    // Listen for changes on with-driver.
+    withDriver.addEventListener("change", function () {
+      if (withDriver.checked) {
+        // If with-driver is checked, uncheck self-drive.
+        if (selfDrive) {
+          selfDrive.checked = false;
+          $(selfDrive).closest("label").removeClass("w--redirected-checked");
+        }
+        $(withDriver).closest("label").addClass("w--redirected-checked");
+      } else {
+        $(withDriver).closest("label").removeClass("w--redirected-checked");
+      }
+    });
   }
   if (selfDrive) {
+    // Ensure self-drive is unchecked by default.
     $(selfDrive).prop("checked", false).removeAttr("checked");
+    // Listen for changes on self-drive.
+    selfDrive.addEventListener("change", function () {
+      if (selfDrive.checked) {
+        // If self-drive is checked, uncheck with-driver.
+        if (withDriver) {
+          withDriver.checked = false;
+          $(withDriver).closest("label").removeClass("w--redirected-checked");
+        }
+        $(selfDrive).closest("label").addClass("w--redirected-checked");
+        // Show license upload containers.
+        if (licenseDetailsFront) {
+          licenseDetailsFront.style.display = "block";
+        }
+        if (licenseDetailsBack) {
+          licenseDetailsBack.style.display = "block";
+        }
+      } else {
+        $(selfDrive).closest("label").removeClass("w--redirected-checked");
+        // Hide license upload containers.
+        if (licenseDetailsFront) {
+          licenseDetailsFront.style.display = "none";
+        }
+        if (licenseDetailsBack) {
+          licenseDetailsBack.style.display = "none";
+        }
+      }
+    });
   }
 
   // Initially hide the license upload containers.
@@ -88,48 +128,9 @@ $(document).ready(function () {
     $(licenseInputBack).attr("wr-type", "required-field");
   }
 
-  // Toggle display of the license upload containers when driver options change.
-  function toggleDriverOptions() {
-    if (selfDrive && selfDrive.checked) {
-      if (withDriver) {
-        withDriver.checked = false;
-        $(withDriver).closest("label").removeClass("w--redirected-checked");
-      }
-      if (licenseDetailsFront) {
-        licenseDetailsFront.style.display = "block";
-      }
-      if (licenseDetailsBack) {
-        licenseDetailsBack.style.display = "block";
-      }
-    } else {
-      if (withDriver) {
-        withDriver.checked = true;
-        $(withDriver).closest("label").addClass("w--redirected-checked");
-      }
-      if (licenseDetailsFront) {
-        licenseDetailsFront.style.display = "none";
-      }
-      if (licenseDetailsBack) {
-        licenseDetailsBack.style.display = "none";
-      }
-      // Clear any error states on the license upload containers.
-      if (licenseInputFront) {
-        clearFieldError($(licenseDetailsFront));
-      }
-      if (licenseInputBack) {
-        clearFieldError($(licenseDetailsBack));
-      }
-    }
-  }
-  if (withDriver) {
-    withDriver.addEventListener("change", toggleDriverOptions);
-  }
-  if (selfDrive) {
-    selfDrive.addEventListener("change", toggleDriverOptions);
-  }
-
   // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
+    // If neither checkbox is selected, show error message(s).
     if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
       e.preventDefault();
       e.stopPropagation();
@@ -137,6 +138,7 @@ $(document).ready(function () {
       fieldError($(selfDrive));
       return false;
     }
+    // If self-drive is selected, validate file uploads.
     if (selfDrive && selfDrive.checked) {
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
