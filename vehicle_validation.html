@@ -95,12 +95,15 @@ $(document).ready(function () {
         if (selfDrive) {
           selfDrive.checked = false;
           $(selfDrive).closest("label").removeClass("w--redirected-checked");
-          clearFieldError($(selfDrive).closest("label"));
         }
         $(withDriver).closest("label").addClass("w--redirected-checked");
-        clearFieldError($(withDriver).closest("label"));
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
+      }
+      // Clear error messages if either checkbox is now checked.
+      if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
+        clearFieldError($(withDriver).closest("label"));
+        clearFieldError($(selfDrive).closest("label"));
       }
     });
   }
@@ -113,10 +116,8 @@ $(document).ready(function () {
         if (withDriver) {
           withDriver.checked = false;
           $(withDriver).closest("label").removeClass("w--redirected-checked");
-          clearFieldError($(withDriver).closest("label"));
         }
         $(selfDrive).closest("label").addClass("w--redirected-checked");
-        clearFieldError($(selfDrive).closest("label"));
         // Show license upload containers.
         if (licenseDetailsFront) {
           licenseDetailsFront.style.display = "block";
@@ -133,6 +134,11 @@ $(document).ready(function () {
         if (licenseDetailsBack) {
           licenseDetailsBack.style.display = "none";
         }
+      }
+      // Clear error messages if either checkbox is now checked.
+      if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
+        clearFieldError($(withDriver).closest("label"));
+        clearFieldError($(selfDrive).closest("label"));
       }
     });
   }
