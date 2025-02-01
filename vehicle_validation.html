@@ -12,6 +12,7 @@ $(document).ready(function () {
 
   // Utility: Mark a field as having an error.
   function fieldError($field) {
+    console.log("fieldError: Triggering error for", $field);
     $field.siblings('[wr-type="error"]').show();
     $field.addClass("error");
     formErrors = true;
@@ -19,6 +20,7 @@ $(document).ready(function () {
 
   // Utility: Clear a field's error.
   function clearFieldError($field) {
+    console.log("clearFieldError: Clearing error for", $field);
     $field.removeClass("error");
     $field.siblings('[wr-type="error"]').hide();
   }
@@ -42,7 +44,6 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   // Step 2: Driver Option & License Upload Validation with Debug Logs
   // --------------------------------------------------------------
-
   // Grab the driver option checkboxes.
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
@@ -83,20 +84,6 @@ $(document).ready(function () {
   if (licenseInputBack) {
     $(licenseInputBack).attr("wr-type", "required-field");
     console.log("licenseInputBack wr-type set to required-field.");
-  }
-
-  // Utility: Mark a field as having an error.
-  function fieldError($field) {
-    console.log("fieldError: Triggering error for", $field);
-    $field.siblings('[wr-type="error"]').show();
-    $field.addClass("error");
-  }
-
-  // Utility: Clear a field's error.
-  function clearFieldError($field) {
-    console.log("clearFieldError: Clearing error for", $field);
-    $field.removeClass("error");
-    $field.siblings('[wr-type="error"]').hide();
   }
 
   // Toggle display of the license upload containers when driver options change.
@@ -221,7 +208,6 @@ $(document).ready(function () {
       }
     });
   }
-});
 
   // --------------------------------------------------------------
   // Step 3: Airport Pickup Details
