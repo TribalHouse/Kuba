@@ -12,13 +12,10 @@ $(document).ready(function () {
 
   // Utility: Mark a field as having an error.
   function fieldError($field) {
-    console.log("fieldError called on:", $field);
-    // Try to find error element among siblings; if not, search within.
     var errorElem = $field.siblings('[wr-type="error"]');
     if (errorElem.length === 0) {
       errorElem = $field.find('[wr-type="error"]');
     }
-    console.log("Error element found:", errorElem);
     errorElem.show();
     $field.addClass("error");
     formErrors = true;
@@ -35,7 +32,7 @@ $(document).ready(function () {
   }
 
   // --------------------------------------------------------------
-  // Step 1: Date Selection (unchanged)
+  // Step 1: Date Selection
   // --------------------------------------------------------------
   var rentForm = document.getElementById("wf-form-Rent-Form");
   var datePickers = rentForm.querySelectorAll(".flatpickr-input");
@@ -51,189 +48,135 @@ $(document).ready(function () {
   getStartedBtn.addEventListener("click", checkForm, true);
 
   // --------------------------------------------------------------
-  // Step 2: Driver Option & License Upload Validation (with Debug Logs)
+  // Step 2: Driver Option & License Upload Validation
   // --------------------------------------------------------------
-  console.log("Step 2: Initializing Driver Option & License Upload Validation");
-
-  // Grab the driver option checkboxes.
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
-  console.log("withDriver element:", withDriver);
-  console.log("selfDrive element:", selfDrive);
 
   // Grab the containers for the file inputs (license uploads).
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
-  console.log("licenseDetailsFront element:", licenseDetailsFront);
-  console.log("licenseDetailsBack element:", licenseDetailsBack);
 
   // Set default states.
   if (withDriver) {
     withDriver.checked = true;
-    console.log("withDriver default set to checked:", withDriver.checked);
-    // Trigger change event to let any attached styling handlers update.
     $(withDriver).trigger("change");
-    // Alternatively (or additionally), add the active styling class to the parent label.
     $(withDriver).closest("label").addClass("w--redirected-checked");
   }
   if (selfDrive) {
     selfDrive.checked = false;
-    console.log("selfDrive default set to unchecked:", selfDrive.checked);
   }
 
   // Initially hide the license upload containers.
   if (licenseDetailsFront) {
     licenseDetailsFront.style.display = "none";
-    console.log("licenseDetailsFront hidden");
   }
   if (licenseDetailsBack) {
     licenseDetailsBack.style.display = "none";
-    console.log("licenseDetailsBack hidden");
   }
 
   // Retrieve the file input elements from within these containers.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
-  console.log("licenseInputFront element:", licenseInputFront);
-  console.log("licenseInputBack element:", licenseInputBack);
 
   // Apply the required-field attribute to the file inputs.
   if (licenseInputFront) {
     $(licenseInputFront).attr("wr-type", "required-field");
-    console.log("Applied required-field attribute to licenseInputFront");
   }
   if (licenseInputBack) {
     $(licenseInputBack).attr("wr-type", "required-field");
-    console.log("Applied required-field attribute to licenseInputBack");
   }
 
   // Toggle display of the license upload containers when driver options change.
   function toggleDriverOptions() {
-    console.log("toggleDriverOptions triggered; selfDrive.checked:", selfDrive.checked);
     if (selfDrive && selfDrive.checked) {
-      console.log("Self Drive selected: Unchecking withDriver and showing file uploads.");
       if (withDriver) {
         withDriver.checked = false;
-        // Remove active styling from withDriver.
         $(withDriver).closest("label").removeClass("w--redirected-checked");
-        console.log("withDriver set to false and active class removed");
       }
       if (licenseDetailsFront) {
         licenseDetailsFront.style.display = "block";
-        console.log("licenseDetailsFront set to block");
       }
       if (licenseDetailsBack) {
         licenseDetailsBack.style.display = "block";
-        console.log("licenseDetailsBack set to block");
       }
     } else {
-      console.log("Self Drive not selected: Checking withDriver and hiding file uploads.");
       if (withDriver) {
         withDriver.checked = true;
-        // Ensure active styling is applied.
         $(withDriver).closest("label").addClass("w--redirected-checked");
-        console.log("withDriver set to true and active class added");
       }
       if (licenseDetailsFront) {
         licenseDetailsFront.style.display = "none";
-        console.log("licenseDetailsFront set to none");
       }
       if (licenseDetailsBack) {
         licenseDetailsBack.style.display = "none";
-        console.log("licenseDetailsBack set to none");
       }
       // Clear any error states on the license upload containers.
       if (licenseInputFront) {
         clearFieldError($(licenseDetailsFront));
-        console.log("Cleared error on licenseDetailsFront");
       }
       if (licenseInputBack) {
         clearFieldError($(licenseDetailsBack));
-        console.log("Cleared error on licenseDetailsBack");
       }
     }
   }
   if (withDriver) {
     withDriver.addEventListener("change", toggleDriverOptions);
-    console.log("Event listener added for withDriver change");
   }
   if (selfDrive) {
     selfDrive.addEventListener("change", toggleDriverOptions);
-    console.log("Event listener added for selfDrive change");
   }
 
   // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
-    console.log("validateStep2 triggered.");
-    // Ensure at least one driver option is selected.
     if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
-      console.log("Error: Neither withDriver nor selfDrive is checked.");
       e.preventDefault();
       e.stopPropagation();
       fieldError($(withDriver));
       fieldError($(selfDrive));
       return false;
     }
-    // If Self Drive is selected, both file inputs must have a file.
     if (selfDrive && selfDrive.checked) {
-      console.log("Self Drive is checked; validating file uploads.");
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
-        console.log("Error: licenseInputFront is empty.");
         fieldError($(licenseDetailsFront));
         valid = false;
-      } else {
-        console.log("licenseInputFront value:", $(licenseInputFront).val());
       }
       if (licenseInputBack && !$(licenseInputBack).val()) {
-        console.log("Error: licenseInputBack is empty.");
         fieldError($(licenseDetailsBack));
         valid = false;
-      } else {
-        console.log("licenseInputBack value:", $(licenseInputBack).val());
       }
       if (!valid) {
         e.preventDefault();
         e.stopPropagation();
-        console.log("validateStep2: File upload validation failed.");
         return false;
       }
     }
-    console.log("validateStep2: Validation passed.");
     return true;
   }
   var slider2 = document.getElementById("slider-2");
   if (slider2) {
     slider2.addEventListener("click", function (e) {
-      console.log("Slider-2 (Next Step) button clicked; initiating validateStep2.");
       if (validateStep2(e)) {
-        console.log("Step 2 validation passed. Proceeding to Step 3.");
         Webflow.push(function () {
           // Insert navigation logic to proceed to Step 3.
         });
-      } else {
-        console.log("Step 2 validation failed.");
       }
     }, true);
-    console.log("Event listener added to slider-2");
   }
 
   // Clear file input error as soon as a file is uploaded.
   if (licenseInputFront) {
     $(licenseInputFront).on("change", function () {
-      console.log("licenseInputFront file changed. New value:", $(this).val());
       if ($(this).val()) {
         clearFieldError($(licenseDetailsFront));
-        console.log("Cleared error for licenseDetailsFront");
       }
     });
   }
   if (licenseInputBack) {
     $(licenseInputBack).on("change", function () {
-      console.log("licenseInputBack file changed. New value:", $(this).val());
       if ($(this).val()) {
         clearFieldError($(licenseDetailsBack));
-        console.log("Cleared error for licenseDetailsBack");
       }
     });
   }
@@ -298,7 +241,6 @@ $(document).ready(function () {
       if (!regionSelected) {
         e.preventDefault();
         e.stopPropagation();
-        // (Optional) Insert code to display an error message or update a placeholder.
       }
     }
   }
