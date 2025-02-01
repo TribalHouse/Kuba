@@ -75,11 +75,11 @@ $(document).ready(function () {
     licenseDetailsBack.style.display = "none";
   }
 
-  // Retrieve the file input elements.
+  // Retrieve the file input elements from within these containers.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
 
-  // Apply the required-field attribute to file inputs.
+  // Apply the required-field attribute to the file inputs.
   if (licenseInputFront) {
     $(licenseInputFront).attr("wr-type", "required-field");
   }
@@ -90,6 +90,10 @@ $(document).ready(function () {
   // Listen for changes on "With Driver".
   if (withDriver) {
     withDriver.addEventListener("change", function () {
+      // Clear any error messages on both checkbox labels.
+      clearFieldError($(withDriver).closest("label"));
+      clearFieldError($(selfDrive).closest("label"));
+      
       if ($(withDriver).is(":checked")) {
         // When "With Driver" is checked, uncheck Self Drive.
         if (selfDrive) {
@@ -106,6 +110,10 @@ $(document).ready(function () {
   // Listen for changes on "Self Drive".
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
+      // Clear any error messages on both checkbox labels.
+      clearFieldError($(withDriver).closest("label"));
+      clearFieldError($(selfDrive).closest("label"));
+      
       if ($(selfDrive).is(":checked")) {
         // When "Self Drive" is checked, uncheck With Driver.
         if (withDriver) {
@@ -133,9 +141,9 @@ $(document).ready(function () {
     });
   }
 
-  // Validate Step 2 when the Next button is clicked.
+  // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
-    // If neither checkbox is selected, show error messages on their label containers.
+    // If neither checkbox is selected, show error messages on both checkbox labels.
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
       e.preventDefault();
       e.stopPropagation();
@@ -270,11 +278,9 @@ $(document).ready(function () {
   var locationDetails = document.getElementById("location-details");
   var licenseDetails = document.getElementById("license-details");
   var airportDetails = document.getElementById("airportpick-details");
-
   if (locationDetails) locationDetails.style.display = "none";
   if (licenseDetails) licenseDetails.style.display = "none";
   if (airportDetails) airportDetails.style.display = "none";
-
   if (checkboxLocation && locationDetails) {
     checkboxLocation.addEventListener("click", function () {
       locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
@@ -319,7 +325,6 @@ $(document).ready(function () {
     var modelInput3 = document.getElementById("Vehicle-Model-Number-3");
     var modelInput4 = document.getElementById("Vehicle-Model-Number-4");
     var pageNameInput = document.getElementById("page-name");
-
     if (model && carName) {
       var modelInfo = model.textContent + " " + carName.textContent;
       if (modelInput1) modelInput1.value = modelInfo;
