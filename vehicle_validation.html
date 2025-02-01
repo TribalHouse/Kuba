@@ -57,7 +57,7 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set default states on page load.
+  // Set default states (only on page load).
   if (withDriver) {
     // Mark "With Driver" as checked by default.
     $(withDriver).prop("checked", true).attr("checked", "checked");
@@ -90,7 +90,7 @@ $(document).ready(function () {
   // Listen for changes on "With Driver".
   if (withDriver) {
     withDriver.addEventListener("change", function () {
-      if ($(withDriver).is(":checked")) {
+      if (withDriver.checked) {
         // When "With Driver" is checked, uncheck Self Drive.
         if (selfDrive) {
           selfDrive.checked = false;
@@ -98,6 +98,7 @@ $(document).ready(function () {
         }
         $(withDriver).closest("label").addClass("w--redirected-checked");
       } else {
+        // If the user manually unchecks "With Driver", do not auto–revert.
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
     });
@@ -106,7 +107,7 @@ $(document).ready(function () {
   // Listen for changes on "Self Drive".
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
-      if ($(selfDrive).is(":checked")) {
+      if (selfDrive.checked) {
         // When "Self Drive" is checked, uncheck With Driver.
         if (withDriver) {
           withDriver.checked = false;
@@ -135,16 +136,16 @@ $(document).ready(function () {
 
   // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
-    // If neither checkbox is selected, show error messages on their label containers.
-    if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
+    // If neither checkbox is selected, show error messages.
+    if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
       e.preventDefault();
       e.stopPropagation();
-      fieldError($(withDriver).closest("label"));
-      fieldError($(selfDrive).closest("label"));
+      fieldError($(withDriver));
+      fieldError($(selfDrive));
       return false;
     }
-    // If "Self Drive" is selected, validate file uploads.
-    if ($(selfDrive).is(":checked")) {
+    // If Self Drive is selected, validate file uploads.
+    if (selfDrive && selfDrive.checked) {
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
         fieldError($(licenseDetailsFront));
