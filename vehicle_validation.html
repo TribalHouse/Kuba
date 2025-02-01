@@ -215,6 +215,13 @@ $(document).ready(function () {
   if (flightNumber) $(flightNumber).removeAttr("wr-type required");
   if (flightTime) $(flightTime).removeAttr("wr-type required");
 
+  // Clear error message when the date is selected.
+  $(datePickers[1]).on("change", function () {
+    if ($(this).val()) {
+      clearFieldError($(this));
+    }
+  });
+
   // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
     var errors = [];
@@ -226,14 +233,16 @@ $(document).ready(function () {
         errors.push("#flight-time");
       }
       if (!datePickers[1].value) {
-        errors.push("#pick-up-drop-off-date");
+        // Assuming the error should be applied on the date input itself.
+        errors.push($(datePickers[1]));
       }
     }
     if (errors.length > 0) {
       e.preventDefault();
       e.stopPropagation();
       errors.forEach(function (selector) {
-        fieldError($(selector));
+        // If the error item is a jQuery object, use it directly; otherwise, wrap it.
+        fieldError(selector.jquery ? selector : $(selector));
       });
     }
   }
