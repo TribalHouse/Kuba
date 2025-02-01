@@ -1,205 +1,148 @@
-
 <script>
   $(document).ready(function () {
     "use strict";
 
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------------------
     // Global Setup
-    // ---------------------------------------------------------------------
-    // Enable multiple file uploads for all file inputs.
+    // --------------------------------------------------------------
     $("input[type=file]").attr("multiple", "multiple");
-
-    // Hide error messages and remove error classes initially.
     $('[wr-type="error"]').hide();
     $('[wr-type="required-field"]').removeClass("error");
-
     var formErrors = false;
 
-    // Utility: Mark a field with an error.
+    // Utility: Mark a field as having an error.
     function fieldError($field) {
+      // This will show the error element that is a sibling of $field.
       $field.siblings('[wr-type="error"]').show();
       $field.addClass("error");
       formErrors = true;
     }
 
-    // Utility: Clear error state from a field.
+    // Utility: Clear a field's error.
     function clearFieldError($field) {
       $field.removeClass("error");
       $field.siblings('[wr-type="error"]').hide();
     }
 
-    // General form submission handler.
-    $('[wr-type="submit"]').on("click", function () {
-      formErrors = false;
-      $('[wr-type="required-field"]').each(function () {
-        var $this = $(this);
-        var val = $this.val();
-
-        // Check for empty fields.
-        if (!val) {
-          fieldError($this);
-          return;
-        }
-        // Email validation.
-        if ($this.attr("type") === "email" && (val.indexOf("@") === -1 || val.indexOf(".") === -1)) {
-          fieldError($this);
-          return;
-        }
-      });
-
-      if (!formErrors) {
-        $(this).closest("form").submit();
-      }
-    });
-
-    // Clear errors on keypress or blur.
-    $('[wr-type="required-field"]').on("keypress blur", function () {
-      clearFieldError($(this));
-    });
-
-    // Submit form on Enter key.
-    $("input, textarea").on("keypress", function (e) {
-      if (e.keyCode === 13) {
-        e.preventDefault();
-        $(this).trigger("change");
-        $('[wr-type="submit"]').click();
-      }
-    });
-
-    // ---------------------------------------------------------------------
-    // Step 1: Date Selection
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------------------
+    // Step 1 (for context) – (unchanged)
+    // --------------------------------------------------------------
     var rentForm = document.getElementById("wf-form-Rent-Form");
     var datePickers = rentForm.querySelectorAll(".flatpickr-input");
     var getStartedBtn = rentForm.querySelector("#slider-1");
-
-    // Initialize first flatpickr (date range selection).
-    var fp1 = flatpickr(datePickers[0], {
-      minDate: "today",
-      mode: "range"
-    });
-
-    // Ensure the date picker is filled before proceeding.
+    var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
     function checkForm(e) {
       if (!datePickers[0].value) {
         e.preventDefault();
         e.stopPropagation();
-        fieldError($("#dates")); // Assumes element with ID "dates" shows the error.
+        fieldError($("#dates")); // Assumes an error element is a sibling of #dates.
       }
     }
     getStartedBtn.addEventListener("click", checkForm, true);
 
-   // ---- Step 2: Driver Option Selection and License Upload Validation ----
-// Grab driver option elements.
-var withDriver = document.getElementById("with-driver");
-var selfDrive = document.getElementById("self-drive");
+    // --------------------------------------------------------------
+    // Step 2: Driver Option & License Upload Validation
+    // --------------------------------------------------------------
+    // Grab driver option elements.
+    var withDriver = document.getElementById("with-driver");
+    var selfDrive = document.getElementById("self-drive");
 
-// Grab the containers for license uploads (if you use them for layout/styling).
-var licenseDetailsFront = document.getElementById("license-details-front");
-var licenseDetailsBack = document.getElementById("license-details-back");
+    // Grab the containers that hold the file inputs for license uploads.
+    var licenseDetailsFront = document.getElementById("license-details-front");
+    var licenseDetailsBack = document.getElementById("license-details-back");
 
-// Set default: With Driver is checked; Self Drive is unchecked.
-if (withDriver) withDriver.checked = true;
-if (selfDrive) selfDrive.checked = false;
-
-// Initially hide the license upload containers.
-if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
-if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
-
-// Retrieve the file input elements within the license upload containers.
-// (Ensure these inputs are within the container or update the selectors as needed.)
-var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
-var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
-
-// Apply the required-field attribute to the file inputs so they are treated like other required fields.
-if (licenseInputFront) {
-  $(licenseInputFront).attr("wr-type", "required-field");
-}
-if (licenseInputBack) {
-  $(licenseInputBack).attr("wr-type", "required-field");
-}
-
-// Toggle display based on driver option selection.
-function toggleDriverOptions() {
-  if (selfDrive && selfDrive.checked) {
-    // When Self Drive is selected:
-    // - Uncheck With Driver.
-    // - Show the license upload containers.
-    if (withDriver) withDriver.checked = false;
-    if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
-    if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
-  } else {
-    // When Self Drive is not selected:
-    // - Ensure With Driver is checked.
-    // - Hide the license upload containers.
+    // Set defaults: With Driver is checked, Self Drive unchecked.
     if (withDriver) withDriver.checked = true;
+    if (selfDrive) selfDrive.checked = false;
+
+    // Initially hide the license upload containers.
     if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
     if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
-    // Clear any lingering error messages from the file inputs.
-    if (licenseInputFront) clearFieldError($(licenseInputFront));
-    if (licenseInputBack) clearFieldError($(licenseInputBack));
-  }
-}
-if (withDriver) withDriver.addEventListener("change", toggleDriverOptions);
-if (selfDrive) selfDrive.addEventListener("change", toggleDriverOptions);
 
-// Validate Step 2 on clicking the Next button.
-function validateStep2(e) {
-  // Ensure at least one driver option is selected.
-  if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
-    e.preventDefault();
-    e.stopPropagation();
-    fieldError($(withDriver));
-    fieldError($(selfDrive));
-    return false;
-  }
-  // If Self Drive is selected, both license file inputs must have a file.
-  if (selfDrive && selfDrive.checked) {
-    var valid = true;
-    if (licenseInputFront && !$(licenseInputFront).val()) {
-      fieldError($(licenseInputFront));
-      valid = false;
-    }
-    if (licenseInputBack && !$(licenseInputBack).val()) {
-      fieldError($(licenseInputBack));
-      valid = false;
-    }
-    if (!valid) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }
-  }
-  return true;
-}
+    // Retrieve the file input elements within these containers.
+    var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
+    var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
 
-// Attach validation to the Next button (assumed to have the ID "slider-2").
-var slider2 = document.getElementById("slider-2");
-if (slider2) {
-  slider2.addEventListener("click", function (e) {
-    if (validateStep2(e)) {
-      Webflow.push(function () {
-        // Navigation logic to move to Step 3 goes here.
+    // Apply the required-field attribute to the file inputs.
+    if (licenseInputFront) $(licenseInputFront).attr("wr-type", "required-field");
+    if (licenseInputBack) $(licenseInputBack).attr("wr-type", "required-field");
+
+    // Toggle display of license upload containers based on driver option.
+    function toggleDriverOptions() {
+      if (selfDrive && selfDrive.checked) {
+        // When Self Drive is selected, uncheck With Driver and show license upload containers.
+        if (withDriver) withDriver.checked = false;
+        if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
+        if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
+      } else {
+        // When Self Drive is not selected, check With Driver and hide license upload containers.
+        if (withDriver) withDriver.checked = true;
+        if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
+        if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
+        // Clear any error messages on these file inputs.
+        if (licenseInputFront) clearFieldError($(licenseInputFront));
+        if (licenseInputBack) clearFieldError($(licenseInputBack));
+      }
+    }
+    if (withDriver) withDriver.addEventListener("change", toggleDriverOptions);
+    if (selfDrive) selfDrive.addEventListener("change", toggleDriverOptions);
+
+    // Validate Step 2 when the "Next" button (ID "slider-2") is clicked.
+    function validateStep2(e) {
+      // Ensure at least one driver option is selected.
+      if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
+        e.preventDefault();
+        e.stopPropagation();
+        fieldError($(withDriver));
+        fieldError($(selfDrive));
+        return false;
+      }
+      // If Self Drive is selected, both file inputs must have a file selected.
+      if (selfDrive && selfDrive.checked) {
+        var valid = true;
+        if (licenseInputFront && !$(licenseInputFront).val()) {
+          // Call error on the container so that the associated error element (a sibling) is shown.
+          fieldError($(licenseDetailsFront));
+          valid = false;
+        }
+        if (licenseInputBack && !$(licenseInputBack).val()) {
+          fieldError($(licenseDetailsBack));
+          valid = false;
+        }
+        if (!valid) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }
+      return true;
+    }
+    var slider2 = document.getElementById("slider-2");
+    if (slider2) {
+      slider2.addEventListener("click", function (e) {
+        if (validateStep2(e)) {
+          Webflow.push(function () {
+            // Insert your navigation logic to move to Step 3 here.
+          });
+        }
+      }, true);
+    }
+
+    // When a file is uploaded, clear the error on its container.
+    if (licenseInputFront) {
+      $(licenseInputFront).on("change", function () {
+        if ($(this).val()) {
+          clearFieldError($(licenseDetailsFront));
+        }
       });
     }
-  }, true);
-}
-
-// When a file is uploaded, immediately clear any associated error messages.
-if (licenseInputFront) {
-  $(licenseInputFront).on("change", function () {
-    if ($(this).val()) {
-      clearFieldError($(this));
+    if (licenseInputBack) {
+      $(licenseInputBack).on("change", function () {
+        if ($(this).val()) {
+          clearFieldError($(licenseDetailsBack));
+        }
+      });
     }
-  });
-}
-if (licenseInputBack) {
-  $(licenseInputBack).on("change", function () {
-    if ($(this).val()) {
-      clearFieldError($(this));
-    }
-  });
-}
 
     // ---------------------------------------------------------------------
     // Step 3: Airport Pickup
