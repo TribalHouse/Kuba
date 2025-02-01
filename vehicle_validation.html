@@ -12,7 +12,6 @@ $(document).ready(function () {
 
   // Utility: Mark a field as having an error.
   function fieldError($field) {
-    console.log("fieldError: Triggering error for", $field);
     $field.siblings('[wr-type="error"]').show();
     $field.addClass("error");
     formErrors = true;
@@ -20,7 +19,6 @@ $(document).ready(function () {
 
   // Utility: Clear a field's error.
   function clearFieldError($field) {
-    console.log("clearFieldError: Clearing error for", $field);
     $field.removeClass("error");
     $field.siblings('[wr-type="error"]').hide();
   }
@@ -32,125 +30,96 @@ $(document).ready(function () {
   var datePickers = rentForm.querySelectorAll(".flatpickr-input");
   var getStartedBtn = rentForm.querySelector("#slider-1");
   var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
-  
   function checkForm(e) {
-    console.log("Step 1: Validating date selection.");
     if (!datePickers[0].value) {
-      console.log("Step 1: Date selection missing.");
       e.preventDefault();
       e.stopPropagation();
       fieldError($("#dates")); // Ensure an error element exists as a sibling of #dates.
-    } else {
-      console.log("Step 1: Date selection valid.");
     }
   }
   getStartedBtn.addEventListener("click", checkForm, true);
 
   // --------------------------------------------------------------
-  // Step 2: Driver Option & License Upload Validation with Debug Logs
+  // Step 2: Driver Option & License Upload Validation (with Debug Logs)
   // --------------------------------------------------------------
+  console.log("Step 2: Initiating Driver Option & License Upload Validation");
+
+  // Grab the driver option checkboxes.
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
+  console.log("withDriver element:", withDriver);
+  console.log("selfDrive element:", selfDrive);
 
   // Grab the containers for the file inputs (license uploads).
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set default states
-  if (withDriver) {
-    withDriver.checked = true;
-    console.log("Step 2: Default set: withDriver.checked =", withDriver.checked);
+  // (Your markup already sets “with-driver” as checked by default.)
+  if (withDriver) { 
+    withDriver.checked = true; 
+    console.log("withDriver default set to checked:", withDriver.checked);
   }
-  if (selfDrive) {
-    selfDrive.checked = false;
-    console.log("Step 2: Default set: selfDrive.checked =", selfDrive.checked);
+  if (selfDrive) { 
+    selfDrive.checked = false; 
+    console.log("selfDrive default set to unchecked:", selfDrive.checked);
   }
 
   // Initially hide the license upload containers.
-  if (licenseDetailsFront) {
-    licenseDetailsFront.style.display = "none";
-    console.log("Step 2: licenseDetailsFront hidden by default.");
+  if (licenseDetailsFront) { 
+    licenseDetailsFront.style.display = "none"; 
+    console.log("licenseDetailsFront hidden");
   }
-  if (licenseDetailsBack) {
-    licenseDetailsBack.style.display = "none";
-    console.log("Step 2: licenseDetailsBack hidden by default.");
+  if (licenseDetailsBack) { 
+    licenseDetailsBack.style.display = "none"; 
+    console.log("licenseDetailsBack hidden");
   }
 
   // Retrieve the file input elements from within these containers.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
+  console.log("licenseInputFront element:", licenseInputFront);
+  console.log("licenseInputBack element:", licenseInputBack);
 
   // Apply the required-field attribute to the file inputs.
-  if (licenseInputFront) {
-    $(licenseInputFront).attr("wr-type", "required-field");
-    console.log("Step 2: licenseInputFront wr-type set to required-field.");
+  if (licenseInputFront) { 
+    $(licenseInputFront).attr("wr-type", "required-field"); 
+    console.log("Applied required-field attribute to licenseInputFront");
   }
-  if (licenseInputBack) {
-    $(licenseInputBack).attr("wr-type", "required-field");
-    console.log("Step 2: licenseInputBack wr-type set to required-field.");
+  if (licenseInputBack) { 
+    $(licenseInputBack).attr("wr-type", "required-field"); 
+    console.log("Applied required-field attribute to licenseInputBack");
   }
 
   // Toggle display of the license upload containers when driver options change.
   function toggleDriverOptions() {
-    console.log("Step 2: toggleDriverOptions triggered. selfDrive.checked =", selfDrive.checked);
+    console.log("toggleDriverOptions triggered. selfDrive.checked:", selfDrive.checked);
     if (selfDrive && selfDrive.checked) {
+      console.log("Self Drive selected: Unchecking withDriver and showing file uploads.");
       // When Self Drive is selected, uncheck With Driver and show the file upload containers.
-      if (withDriver) {
-        withDriver.checked = false;
-        console.log("Step 2: Self Drive selected: Unchecking withDriver. withDriver.checked =", withDriver.checked);
-      }
-      if (licenseDetailsFront) {
-        licenseDetailsFront.style.display = "block";
-        console.log("Step 2: Displaying licenseDetailsFront container.");
-      }
-      if (licenseDetailsBack) {
-        licenseDetailsBack.style.display = "block";
-        console.log("Step 2: Displaying licenseDetailsBack container.");
-      }
+      if (withDriver) withDriver.checked = false;
+      if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
+      if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
     } else {
+      console.log("Self Drive not selected: Checking withDriver and hiding file uploads.");
       // When Self Drive is not selected, check With Driver and hide the file upload containers.
-      if (withDriver) {
-        withDriver.checked = true;
-        console.log("Step 2: Self Drive not selected: Checking withDriver. withDriver.checked =", withDriver.checked);
-      }
-      if (licenseDetailsFront) {
-        licenseDetailsFront.style.display = "none";
-        console.log("Step 2: Hiding licenseDetailsFront container.");
-      }
-      if (licenseDetailsBack) {
-        licenseDetailsBack.style.display = "none";
-        console.log("Step 2: Hiding licenseDetailsBack container.");
-      }
+      if (withDriver) withDriver.checked = true;
+      if (licenseDetailsFront) licenseDetailsFront.style.display = "none";
+      if (licenseDetailsBack) licenseDetailsBack.style.display = "none";
       // Also clear any error states on the file inputs.
-      if (licenseInputFront) {
-        clearFieldError($(licenseInputFront));
-      }
-      if (licenseInputBack) {
-        clearFieldError($(licenseInputBack));
-      }
+      if (licenseInputFront) clearFieldError($(licenseInputFront));
+      if (licenseInputBack) clearFieldError($(licenseInputBack));
     }
   }
-
-  // Attach change event listeners to the driver option checkboxes.
-  if (withDriver) {
-    withDriver.addEventListener("change", function() {
-      console.log("Step 2: withDriver changed. New checked state:", withDriver.checked);
-      toggleDriverOptions();
-    });
-  }
-  if (selfDrive) {
-    selfDrive.addEventListener("change", function() {
-      console.log("Step 2: selfDrive changed. New checked state:", selfDrive.checked);
-      toggleDriverOptions();
-    });
-  }
+  if (withDriver) withDriver.addEventListener("change", toggleDriverOptions);
+  if (selfDrive) selfDrive.addEventListener("change", toggleDriverOptions);
+  console.log("Event listeners attached for driver options change.");
 
   // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
-    console.log("Step 2: validateStep2 triggered.");
+    console.log("validateStep2 triggered.");
     // Ensure at least one driver option is selected.
     if ((!withDriver || !withDriver.checked) && (!selfDrive || !selfDrive.checked)) {
-      console.log("Step 2: Validation Error: No driver option selected.");
+      console.log("Error: Neither withDriver nor selfDrive is checked.");
       e.preventDefault();
       e.stopPropagation();
       fieldError($(withDriver));
@@ -159,36 +128,43 @@ $(document).ready(function () {
     }
     // If Self Drive is selected, both file inputs must have a file.
     if (selfDrive && selfDrive.checked) {
+      console.log("SelfDrive is checked, validating file uploads.");
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
-        console.log("Step 2: Validation Error: Self Drive selected but licenseInputFront is empty.");
+        console.log("Error: licenseInputFront is empty.");
         fieldError($(licenseDetailsFront));
         valid = false;
+      } else {
+        console.log("licenseInputFront has a value:", $(licenseInputFront).val());
       }
       if (licenseInputBack && !$(licenseInputBack).val()) {
-        console.log("Step 2: Validation Error: Self Drive selected but licenseInputBack is empty.");
+        console.log("Error: licenseInputBack is empty.");
         fieldError($(licenseDetailsBack));
         valid = false;
+      } else {
+        console.log("licenseInputBack has a value:", $(licenseInputBack).val());
       }
       if (!valid) {
-        console.log("Step 2: Validation failed due to missing file uploads.");
         e.preventDefault();
         e.stopPropagation();
+        console.log("validateStep2: File upload validation failed.");
         return false;
       }
     }
-    console.log("Step 2: Validation passed.");
+    console.log("validateStep2: Validation passed.");
     return true;
   }
   var slider2 = document.getElementById("slider-2");
   if (slider2) {
     slider2.addEventListener("click", function (e) {
-      console.log("Step 2: slider-2 clicked.");
+      console.log("Slider2 (Next) button clicked, initiating validateStep2.");
       if (validateStep2(e)) {
-        console.log("Step 2: Proceeding to Step 3...");
+        console.log("Step 2 validation passed. Proceeding to Step 3.");
         Webflow.push(function () {
           // Insert navigation logic to proceed to Step 3.
         });
+      } else {
+        console.log("Step 2 validation failed.");
       }
     }, true);
   }
@@ -196,16 +172,18 @@ $(document).ready(function () {
   // Clear file input error as soon as a file is uploaded.
   if (licenseInputFront) {
     $(licenseInputFront).on("change", function () {
+      console.log("licenseInputFront file changed. New value:", $(this).val());
       if ($(this).val()) {
-        console.log("Step 2: File uploaded in licenseInputFront. Clearing error.");
+        console.log("Clearing error for licenseDetailsFront.");
         clearFieldError($(licenseDetailsFront));
       }
     });
   }
   if (licenseInputBack) {
     $(licenseInputBack).on("change", function () {
+      console.log("licenseInputBack file changed. New value:", $(this).val());
       if ($(this).val()) {
-        console.log("Step 2: File uploaded in licenseInputBack. Clearing error.");
+        console.log("Clearing error for licenseDetailsBack.");
         clearFieldError($(licenseDetailsBack));
       }
     });
@@ -227,37 +205,29 @@ $(document).ready(function () {
   if (flightNumber) $(flightNumber).removeAttr("wr-type required");
   if (flightTime) $(flightTime).removeAttr("wr-type required");
 
+  // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
-    console.log("Step 3: checkForm3 triggered.");
     var errors = [];
     if (airportPickup && airportPickup.checked) {
       if (!flightNumber || !flightNumber.value) {
-        console.log("Step 3: Validation Error: Flight number missing.");
         errors.push("#flight-number");
       }
       if (!flightTime || !flightTime.value) {
-        console.log("Step 3: Validation Error: Flight time missing.");
         errors.push("#flight-time");
       }
       if (!datePickers[1].value) {
-        console.log("Step 3: Validation Error: Pickup/drop-off date missing.");
         errors.push("#pick-up-drop-off-date");
       }
     }
     if (errors.length > 0) {
-      console.log("Step 3: Validation failed with errors:", errors);
       e.preventDefault();
       e.stopPropagation();
       errors.forEach(function (selector) {
         fieldError($(selector));
       });
-    } else {
-      console.log("Step 3: Validation passed.");
     }
   }
-  if (nextStepBtn2) {
-    nextStepBtn2.addEventListener("click", checkForm3, true);
-  }
+  if (nextStepBtn2) nextStepBtn2.addEventListener("click", checkForm3, true);
 
   // --------------------------------------------------------------
   // Step 4: Out of Accra – Region Selection Validation
@@ -269,7 +239,6 @@ $(document).ready(function () {
     outOfAccra.removeAttribute("required");
   }
   function checkForm4(e) {
-    console.log("Step 4: checkForm4 triggered.");
     if (outOfAccra && outOfAccra.checked) {
       var regionSelected = false;
       checkbox9.forEach(function (checkbox) {
@@ -278,11 +247,9 @@ $(document).ready(function () {
         }
       });
       if (!regionSelected) {
-        console.log("Step 4: Validation Error: No region selected.");
         e.preventDefault();
         e.stopPropagation();
-      } else {
-        console.log("Step 4: Validation passed.");
+        // (Optional) Insert code to display an error message or update a placeholder.
       }
     }
   }
