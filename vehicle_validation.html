@@ -57,9 +57,12 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  
+  // Ensure neither option is selected by default
+  if (withDriver) {
+    $(withDriver).prop("checked", false).removeAttr("checked");
+  }
   if (selfDrive) {
-    $(selfDrive).prop("checked", false).removeAttr("checked"); // Ensure self-drive is unchecked initially
+    $(selfDrive).prop("checked", false).removeAttr("checked");
   }
 
   if (licenseDetailsFront) {
@@ -79,51 +82,45 @@ $(document).ready(function () {
     $(licenseInputBack).attr("wr-type", "required-field");
   }
 
-  if (withDriver) {
-    withDriver.addEventListener("change", function () {
-      if ($(withDriver).is(":checked")) {
-        clearFieldError($(withDriver).closest("label"));
-        clearFieldError($(selfDrive).closest("label"));
+  function validateStep2(e) {
+    if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
+      e.preventDefault();
+      e.stopPropagation();
+      fieldError($(withDriver).closest("label"));
+      fieldError($(selfDrive).closest("label"));
+      return false;
+    }
 
-        if (selfDrive) {
-          selfDrive.checked = false;
-          $(selfDrive).closest("label").removeClass("w--redirected-checked");
-        }
-        $(withDriver).closest("label").addClass("w--redirected-checked");
-
-        if (licenseDetailsFront) {
-          licenseDetailsFront.style.display = "none";
-          clearFieldError($(licenseDetailsFront));
-        }
-        if (licenseDetailsBack) {
-          licenseDetailsBack.style.display = "none";
-          clearFieldError($(licenseDetailsBack));
-        }
+    if ($(selfDrive).is(":checked")) {
+      var valid = true;
+      if (licenseInputFront && !$(licenseInputFront).val()) {
+        fieldError($(licenseDetailsFront));
+        valid = false;
       }
-    });
+      if (licenseInputBack && !$(licenseInputBack).val()) {
+        fieldError($(licenseDetailsBack));
+        valid = false;
+      }
+      if (!valid) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }
+    return true;
   }
 
-  if (selfDrive) {
-    selfDrive.addEventListener("change", function () {
-      if ($(selfDrive).is(":checked")) {
-        clearFieldError($(selfDrive).closest("label"));
-        clearFieldError($(withDriver).closest("label"));
-
-        if (withDriver) {
-          withDriver.checked = false;
-          $(withDriver).closest("label").removeClass("w--redirected-checked");
-        }
-        $(selfDrive).closest("label").addClass("w--redirected-checked");
-
-        if (licenseDetailsFront) {
-          licenseDetailsFront.style.display = "block"; // Show license upload fields for self-drive
-        }
-        if (licenseDetailsBack) {
-          licenseDetailsBack.style.display = "block";
-        }
+  var slider2 = document.getElementById("slider-2");
+  if (slider2) {
+    slider2.addEventListener("click", function (e) {
+      if (validateStep2(e)) {
+        Webflow.push(function () {
+          // Insert navigation logic to proceed to next step
+        });
       }
-    });
+    }, true);
   }
 });
+
 
 </script>
