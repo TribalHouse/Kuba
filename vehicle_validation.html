@@ -47,71 +47,151 @@ $(document).ready(function () {
   }
   getStartedBtn.addEventListener("click", checkForm, true);
 
- // Modified Step 2: Driver Option & License Upload Validation
-// --------------------------------------------------------------
-var withDriver = document.getElementById("with-driver");
-var selfDrive = document.getElementById("self-drive");
+  // --------------------------------------------------------------
+  // Step 2: Driver Option & License Upload Validation
+  // --------------------------------------------------------------
+  var withDriver = document.getElementById("with-driver");
+  var selfDrive = document.getElementById("self-drive");
 
-// Add this function to clear driver option errors
-function clearDriverOptionErrors() {
-  [withDriver, selfDrive].forEach(checkbox => {
-    if (checkbox) {
-      clearFieldError($(checkbox).closest("label"));
-    }
-  });
-}
+  // Grab the containers for the file inputs (license uploads).
+  var licenseDetailsFront = document.getElementById("license-details-front");
+  var licenseDetailsBack = document.getElementById("license-details-back");
 
-// Updated change handler for "With Driver"
-if (withDriver) {
-  withDriver.addEventListener("change", function () {
-    if ($(withDriver).is(":checked")) {
-      // Clear any existing errors when selecting an option
-      clearDriverOptionErrors();
-      
-      // Rest of your existing code
-      if (selfDrive) {
-        selfDrive.checked = false;
-        $(selfDrive).closest("label").removeClass("w--redirected-checked");
-      }
-      $(withDriver).closest("label").addClass("w--redirected-checked");
-    } else {
-      $(withDriver).closest("label").removeClass("w--redirected-checked");
-    }
-  });
-}
+  // Set default states on page load.
+  if (withDriver) {
+    // Mark "With Driver" as checked by default.
+    $(withDriver).prop("checked", true).attr("checked", "checked");
+    $(withDriver).closest("label").addClass("w--redirected-checked");
+  }
+  if (selfDrive) {
+    $(selfDrive).prop("checked", false).removeAttr("checked");
+  }
 
-// Updated change handler for "Self Drive"
-if (selfDrive) {
-  selfDrive.addEventListener("change", function () {
-    if ($(selfDrive).is(":checked")) {
-      // Clear any existing errors when selecting an option
-      clearDriverOptionErrors();
-      
-      // Rest of your existing code
-      if (withDriver) {
-        withDriver.checked = false;
+  // Initially hide the license upload containers.
+  if (licenseDetailsFront) {
+    licenseDetailsFront.style.display = "none";
+  }
+  if (licenseDetailsBack) {
+    licenseDetailsBack.style.display = "none";
+  }
+
+  // Retrieve the file input elements from within these containers.
+  var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
+  var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
+
+  // Apply the required-field attribute to the file inputs.
+  if (licenseInputFront) {
+    $(licenseInputFront).attr("wr-type", "required-field");
+  }
+  if (licenseInputBack) {
+    $(licenseInputBack).attr("wr-type", "required-field");
+  }
+
+  // Listen for changes on "With Driver".
+  if (withDriver) {
+    withDriver.addEventListener("change", function () {
+      if ($(withDriver).is(":checked")) {
+        // When "With Driver" is checked, uncheck Self Drive.
+        if (selfDrive) {
+          selfDrive.checked = false;
+          $(selfDrive).closest("label").removeClass("w--redirected-checked");
+          clearFieldError($(selfDrive).closest("label"));
+        }
+        $(withDriver).closest("label").addClass("w--redirected-checked");
+        clearFieldError($(withDriver).closest("label"));
+      } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      $(selfDrive).closest("label").addClass("w--redirected-checked");
-      // Show license upload containers
-      if (licenseDetailsFront) {
-        licenseDetailsFront.style.display = "block";
+    });
+  }
+
+  // Listen for changes on "Self Drive".
+  if (selfDrive) {
+    selfDrive.addEventListener("change", function () {
+      if ($(selfDrive).is(":checked")) {
+        // When "Self Drive" is checked, uncheck With Driver.
+        if (withDriver) {
+          withDriver.checked = false;
+          $(withDriver).closest("label").removeClass("w--redirected-checked");
+          clearFieldError($(withDriver).closest("label"));
+        }
+        $(selfDrive).closest("label").addClass("w--redirected-checked");
+        clearFieldError($(selfDrive).closest("label"));
+        // Show license upload containers.
+        if (licenseDetailsFront) {
+          licenseDetailsFront.style.display = "block";
+        }
+        if (licenseDetailsBack) {
+          licenseDetailsBack.style.display = "block";
+        }
+      } else {
+        $(selfDrive).closest("label").removeClass("w--redirected-checked");
+        // Hide license upload containers.
+        if (licenseDetailsFront) {
+          licenseDetailsFront.style.display = "none";
+        }
+        if (licenseDetailsBack) {
+          licenseDetailsBack.style.display = "none";
+        }
       }
-      if (licenseDetailsBack) {
-        licenseDetailsBack.style.display = "block";
+    });
+  }
+
+  // Validate Step 2 when the Next button (ID "slider-2") is clicked.
+  function validateStep2(e) {
+    // If neither checkbox is selected, show error messages on their label containers.
+    if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
+      e.preventDefault();
+      e.stopPropagation();
+      fieldError($(withDriver).closest("label"));
+      fieldError($(selfDrive).closest("label"));
+      return false;
+    }
+    // If "Self Drive" is selected, validate file uploads.
+    if ($(selfDrive).is(":checked")) {
+      var valid = true;
+      if (licenseInputFront && !$(licenseInputFront).val()) {
+        fieldError($(licenseDetailsFront));
+        valid = false;
       }
-    } else {
-      $(selfDrive).closest("label").removeClass("w--redirected-checked");
-      // Hide license upload containers
-      if (licenseDetailsFront) {
-        licenseDetailsFront.style.display = "none";
+      if (licenseInputBack && !$(licenseInputBack).val()) {
+        fieldError($(licenseDetailsBack));
+        valid = false;
       }
-      if (licenseDetailsBack) {
-        licenseDetailsBack.style.display = "none";
+      if (!valid) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
       }
     }
-  });
-}
+    return true;
+  }
+  var slider2 = document.getElementById("slider-2");
+  if (slider2) {
+    slider2.addEventListener("click", function (e) {
+      if (validateStep2(e)) {
+        Webflow.push(function () {
+          // Insert navigation logic to proceed to Step 3.
+        });
+      }
+    }, true);
+  }
+
+  // Clear file input error as soon as a file is uploaded.
+  if (licenseInputFront) {
+    $(licenseInputFront).on("change", function () {
+      if ($(this).val()) {
+        clearFieldError($(licenseDetailsFront));
+      }
+    });
+  }
+  if (licenseInputBack) {
+    $(licenseInputBack).on("change", function () {
+      if ($(this).val()) {
+        clearFieldError($(licenseDetailsBack));
+      }
+    });
+  }
 
   // --------------------------------------------------------------
   // Step 3: Airport Pickup Details
@@ -120,11 +200,16 @@ if (selfDrive) {
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
   var nextStepBtn2 = rentForm.querySelector("#slider-3");
+
+  // Initialize the second flatpickr instance (for pickup/drop-off dates).
   var fp2 = flatpickr(datePickers[1], { minDate: "today", mode: "range" });
+
+  // Remove unnecessary validation attributes from optional fields.
   $(datePickers[1]).removeAttr("wr-type required");
   if (flightNumber) $(flightNumber).removeAttr("wr-type required");
   if (flightTime) $(flightTime).removeAttr("wr-type required");
 
+  // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
     var errors = [];
     if (airportPickup && airportPickup.checked) {
