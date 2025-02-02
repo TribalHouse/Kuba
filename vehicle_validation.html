@@ -342,9 +342,11 @@ $(document).ready(function () {
     // Set the comma-separated region values in the hidden input.
     $('#selectedRegions').val(selectedRegions.join(', '));
     console.log("[Final Submission] Selected Regions:", $('#selectedRegions').val());
+    // Remove the name attribute from region checkboxes so they don't submit an unwanted value.
+    $('input[name="regions[]"]').removeAttr("name");
     // --------------------------------------------------
 
-    // Cleanup multi-select checkboxes so that unchecked ones do not submit
+    // Cleanup multi-select checkboxes (if any) so that unchecked ones do not submit
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) {
         $(this).removeAttr("name");
@@ -467,7 +469,10 @@ $(document).ready(function () {
       if (modelInput3) { modelInput3.value = modelInfo; }
       if (modelInput4) { modelInput4.value = modelInfo; }
     }
-    if (pageNameInput) { pageNameInput.value = window.location.href; }
+    if (pageNameInput) { 
+      pageNameInput.value = window.location.href;
+      console.log("[Populate] Page URL:", pageNameInput.value);
+    }
   });
 });
 </script>
