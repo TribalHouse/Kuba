@@ -312,21 +312,18 @@ $(document).ready(function () {
     $(backInput).attr("wr-type", "required-field");
   }
 
-  // Attach change event listeners to clear errors when files are uploaded.
+  // Attach change event listeners to clear errors individually when files are uploaded.
   if (frontInput) {
     $(frontInput).on("change", function () {
       if ($(this).val()) {
-        // Clear error from the front upload container.
-        $(uploadFrontContainer).closest(".passport_details").find('[wr-type="error"]').hide();
-        $(uploadFrontContainer).removeClass("error");
+        clearFieldError($(uploadFrontContainer));
       }
     });
   }
   if (backInput) {
     $(backInput).on("change", function () {
       if ($(this).val()) {
-        $(uploadBackContainer).closest(".passport_details").find('[wr-type="error"]').hide();
-        $(uploadBackContainer).removeClass("error");
+        clearFieldError($(uploadBackContainer));
       }
     });
   }
