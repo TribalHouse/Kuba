@@ -89,10 +89,9 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
-        clearFieldError($(withDriver).closest("label"));
-        clearFieldError($(selfDrive).closest("label"));
-      }
+      // Always clear error messages on change.
+      clearFieldError($(withDriver).closest("label"));
+      clearFieldError($(selfDrive).closest("label"));
     });
   }
 
@@ -112,14 +111,13 @@ $(document).ready(function () {
         if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
         if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
       }
-      if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
-        clearFieldError($(withDriver).closest("label"));
-        clearFieldError($(selfDrive).closest("label"));
-      }
+      // Always clear error messages on change.
+      clearFieldError($(withDriver).closest("label"));
+      clearFieldError($(selfDrive).closest("label"));
     });
   }
 
-  // Validate Step 2.
+  // Validate Step 2 when Next is clicked.
   function validateStep2(e) {
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
       e.preventDefault();
@@ -193,6 +191,17 @@ $(document).ready(function () {
       if ($(this).val()) { clearFieldError($(this)); }
     });
   }
+  // Listen for changes on Airport Pickup checkbox.
+  if (airportPickup) {
+    airportPickup.addEventListener("change", function () {
+      if (!airportPickup.checked) {
+        // If airport pickup is unchecked, clear errors on its related fields.
+        clearFieldError($(flightNumber));
+        clearFieldError($(flightTime));
+        clearFieldError($(datePickers[1]));
+      }
+    });
+  }
   function checkForm3(e) {
     var errors = [];
     if (airportPickup && airportPickup.checked) {
@@ -224,7 +233,7 @@ $(document).ready(function () {
   }
   // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
   $("#wf-form-Rent-Form").on("submit", function () {
-    $(".w-checkbox.search-result input[type='checkbox']").each(function () {
+    $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
     });
   });
@@ -262,7 +271,6 @@ $(document).ready(function () {
   // Validate Step 5 on form submission.
   $("#wf-form-Rent-Form").on("submit", function (e) {
     var valid = true;
-    // Check for front upload success state.
     if (frontInput) {
       var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
       if (!frontUploaded) {
@@ -270,7 +278,6 @@ $(document).ready(function () {
         valid = false;
       }
     }
-    // Check for back upload success state.
     if (backInput) {
       var backUploaded = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
       if (!backUploaded) {
