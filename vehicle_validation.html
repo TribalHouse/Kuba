@@ -100,7 +100,7 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      // Clear error messages if either checkbox is now selected.
+      // Clear error messages if either checkbox is selected.
       if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
         clearFieldError($(withDriver).closest("label"));
         clearFieldError($(selfDrive).closest("label"));
@@ -135,7 +135,7 @@ $(document).ready(function () {
           licenseDetailsBack.style.display = "none";
         }
       }
-      // Clear error messages if either checkbox is now selected.
+      // Clear error messages if either checkbox is selected.
       if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
         clearFieldError($(withDriver).closest("label"));
         clearFieldError($(selfDrive).closest("label"));
@@ -199,7 +199,7 @@ $(document).ready(function () {
     });
   }
 
-    // --------------------------------------------------------------
+  // --------------------------------------------------------------
   // Step 3: Airport Pickup Details
   // --------------------------------------------------------------
   var airportPickup = document.getElementById("airport-pickup");
@@ -294,12 +294,56 @@ $(document).ready(function () {
   }
 
   // --------------------------------------------------------------
-  // Final Step: Additional File Upload Requirement (if any)
+  // Step 5: Passport Upload Validation
   // --------------------------------------------------------------
-  var file2 = document.querySelectorAll("#id-upload");
-  if (file2 && file2.length > 1) {
-    file2[1].setAttribute("wr-type", "required-field");
+  // Retrieve the containers for front and back picture uploads.
+  var uploadFrontContainer = document.getElementById("id-upload-front");
+  var uploadBackContainer = document.getElementById("id-upload-back");
+
+  // Retrieve the file input elements from these containers.
+  var frontInput = uploadFrontContainer ? uploadFrontContainer.querySelector("input[type='file']") : null;
+  var backInput = uploadBackContainer ? uploadBackContainer.querySelector("input[type='file']") : null;
+
+  // Apply the required-field attribute to these file inputs.
+  if (frontInput) {
+    $(frontInput).attr("wr-type", "required-field");
   }
+  if (backInput) {
+    $(backInput).attr("wr-type", "required-field");
+  }
+
+  // Attach change event listeners to clear errors when files are uploaded.
+  if (frontInput) {
+    $(frontInput).on("change", function () {
+      if ($(this).val()) {
+        clearFieldError($(uploadFrontContainer));
+      }
+    });
+  }
+  if (backInput) {
+    $(backInput).on("change", function () {
+      if ($(this).val()) {
+        clearFieldError($(uploadBackContainer));
+      }
+    });
+  }
+
+  // Validate Step 5 on form submission.
+  $("#wf-form-Rent-Form").on("submit", function (e) {
+    var valid = true;
+    if (frontInput && !$(frontInput).val()) {
+      fieldError($(uploadFrontContainer));
+      valid = false;
+    }
+    if (backInput && !$(backInput).val()) {
+      fieldError($(uploadBackContainer));
+      valid = false;
+    }
+    if (!valid) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
 
   // --------------------------------------------------------------
   // Form Customization: Toggle Display for Optional Sections
