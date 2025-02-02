@@ -329,20 +329,23 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
 
-    // --- Process region checkboxes (Flowradar approach) ---
+    // --- Process region checkboxes ---
+    var selectedRegions = [];
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
       if ($checkbox.is(":checked")) {
-        // Change value to "réservé" instead of "true"
-        $checkbox.val("réservé");
-      } else {
-        // Remove the name attribute so unchecked boxes are not submitted
-        $checkbox.removeAttr("name");
+        // Push the custom value from data-ms-value into our array
+        selectedRegions.push($checkbox.attr("data-ms-value"));
       }
     });
+    // Place the joined region names into the hidden input "regionsText"
+    $("#selectedRegions").val(selectedRegions.join(', '));
+    console.log("[Final Submission] Selected Regions:", $("#selectedRegions").val());
+    // Remove the name attribute from region checkboxes so they don't submit unwanted values.
+    $('input[name="regions[]"]').removeAttr("name");
     // --------------------------------------------------
 
-    // (Optional: perform other multi-select cleanup if needed)
+    // Cleanup multi-select checkboxes (if any)
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) {
         $(this).removeAttr("name");
