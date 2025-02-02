@@ -68,7 +68,6 @@ $(document).ready(function () {
   var licenseDetailsBack = document.getElementById("license-details-back");
   console.log("[Step 2] License details front:", licenseDetailsFront, "back:", licenseDetailsBack);
 
-  // Set default states (none selected).
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -284,7 +283,6 @@ $(document).ready(function () {
       console.log("[Step 4] Proceeding from Step 4.");
     }, true);
   }
-  // (Region checkbox cleanup removed as per request.)
 
   // --------------------------------------------------------------
   // Step 5: Passport Upload Validation
@@ -331,25 +329,20 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
 
-    // --- Process region checkboxes ---
-    var selectedRegions = [];
+    // --- Process region checkboxes (Flowradar approach) ---
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
       if ($checkbox.is(":checked")) {
-        var regionValue = $checkbox.attr('data-ms-value');
-        if (regionValue) {
-          selectedRegions.push(regionValue);
-        }
+        // Change value to "réservé" instead of "true"
+        $checkbox.val("réservé");
+      } else {
+        // Remove the name attribute so unchecked boxes are not submitted
+        $checkbox.removeAttr("name");
       }
     });
-    // Set the comma-separated region values in the hidden input.
-    $('#selectedRegions').val(selectedRegions.join(', '));
-    console.log("[Final Submission] Selected Regions:", $('#selectedRegions').val());
-    // Disable the region checkboxes to prevent them from submitting any value.
-    $('input[name="regions[]"]').prop('disabled', true);
     // --------------------------------------------------
 
-    // Cleanup multi-select checkboxes (if any) so that unchecked ones do not submit
+    // (Optional: perform other multi-select cleanup if needed)
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) {
         $(this).removeAttr("name");
@@ -457,7 +450,6 @@ $(document).ready(function () {
   // Populate CarName and Page URL on Window Load
   // --------------------------------------------------------------
   $(window).on("load", function () {
-    // Populate CarName solely from the element with ID "car-name"
     var carName = document.getElementById("car-name");
     var modelInput1 = document.getElementById("Vehicle-Model-Number");
     var modelInput2 = document.getElementById("Vehicle-Model-Number-2");
