@@ -68,24 +68,16 @@ $(document).ready(function () {
   }
 
   // Initially hide the license upload containers.
-  if (licenseDetailsFront) {
-    licenseDetailsFront.style.display = "none";
-  }
-  if (licenseDetailsBack) {
-    licenseDetailsBack.style.display = "none";
-  }
+  if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
+  if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
 
   // Retrieve the file input elements from within these containers.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
 
   // Apply the required-field attribute to the file inputs.
-  if (licenseInputFront) {
-    $(licenseInputFront).attr("wr-type", "required-field");
-  }
-  if (licenseInputBack) {
-    $(licenseInputBack).attr("wr-type", "required-field");
-  }
+  if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
+  if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
   // Listen for changes on "With Driver".
   if (withDriver) {
@@ -119,21 +111,13 @@ $(document).ready(function () {
         }
         $(selfDrive).closest("label").addClass("w--redirected-checked");
         // Show license upload containers.
-        if (licenseDetailsFront) {
-          licenseDetailsFront.style.display = "block";
-        }
-        if (licenseDetailsBack) {
-          licenseDetailsBack.style.display = "block";
-        }
+        if (licenseDetailsFront) { licenseDetailsFront.style.display = "block"; }
+        if (licenseDetailsBack) { licenseDetailsBack.style.display = "block"; }
       } else {
         $(selfDrive).closest("label").removeClass("w--redirected-checked");
         // Hide license upload containers.
-        if (licenseDetailsFront) {
-          licenseDetailsFront.style.display = "none";
-        }
-        if (licenseDetailsBack) {
-          licenseDetailsBack.style.display = "none";
-        }
+        if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
+        if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
       }
       // Clear error messages if either checkbox is selected.
       if ($(withDriver).is(":checked") || $(selfDrive).is(":checked")) {
@@ -145,7 +129,6 @@ $(document).ready(function () {
 
   // Validate Step 2 when the Next button (ID "slider-2") is clicked.
   function validateStep2(e) {
-    // If neither checkbox is selected, show error messages on their label containers.
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
       e.preventDefault();
       e.stopPropagation();
@@ -153,7 +136,6 @@ $(document).ready(function () {
       fieldError($(selfDrive).closest("label"));
       return false;
     }
-    // If "Self Drive" is selected, validate file uploads.
     if ($(selfDrive).is(":checked")) {
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
@@ -186,16 +168,12 @@ $(document).ready(function () {
   // Clear file input error as soon as a file is uploaded (Step 2).
   if (licenseInputFront) {
     $(licenseInputFront).on("change", function () {
-      if ($(this).val()) {
-        clearFieldError($(licenseDetailsFront));
-      }
+      if ($(this).val()) { clearFieldError($(licenseDetailsFront)); }
     });
   }
   if (licenseInputBack) {
     $(licenseInputBack).on("change", function () {
-      if ($(this).val()) {
-        clearFieldError($(licenseDetailsBack));
-      }
+      if ($(this).val()) { clearFieldError($(licenseDetailsBack)); }
     });
   }
 
@@ -245,18 +223,17 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
-  // Assume the region checkboxes are contained in an element with class "multi-select-wrap"
-  var regionCheckboxes = $(".multi-select-wrap input[type='checkbox']");
+  // Region checkboxes now use the classes "w-checkbox search-result"
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // Allow user to proceed regardless of region selection.
+    // No blocking validation; user may proceed regardless.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) { checkForm4(e); }, true);
   }
   // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
   $("#wf-form-Rent-Form").on("submit", function () {
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
+    $(".w-checkbox.search-result input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
     });
   });
@@ -290,7 +267,6 @@ $(document).ready(function () {
       fieldError($(uploadBackContainer));
       valid = false;
     }
-    // If form is valid, hide all error messages before redirection.
     if (valid) {
       $('[wr-type="error"]').hide();
     } else {
@@ -357,12 +333,12 @@ $(document).ready(function () {
     var pageNameInput = document.getElementById("page-name");
     if (model && carName) {
       var modelInfo = model.textContent + " " + carName.textContent;
-      if (modelInput1) modelInput1.value = modelInfo;
-      if (modelInput2) modelInput2.value = modelInfo;
-      if (modelInput3) modelInput3.value = modelInfo;
-      if (modelInput4) modelInput4.value = modelInfo;
+      if (modelInput1) { modelInput1.value = modelInfo; }
+      if (modelInput2) { modelInput2.value = modelInfo; }
+      if (modelInput3) { modelInput3.value = modelInfo; }
+      if (modelInput4) { modelInput4.value = modelInfo; }
     }
-    if (pageNameInput) pageNameInput.value = window.location.href;
+    if (pageNameInput) { pageNameInput.value = window.location.href; }
   });
 });
 </script>
