@@ -183,7 +183,7 @@ $(document).ready(function () {
     }, true);
   }
 
-  // Clear file input error as soon as a file is uploaded.
+  // Clear file input error as soon as a file is uploaded (Step 2).
   if (licenseInputFront) {
     $(licenseInputFront).on("change", function () {
       if ($(this).val()) {
@@ -316,14 +316,17 @@ $(document).ready(function () {
   if (frontInput) {
     $(frontInput).on("change", function () {
       if ($(this).val()) {
-        clearFieldError($(uploadFrontContainer));
+        // Clear error from the parent .passport_details container.
+        $(this).closest(".passport_details").find('[wr-type="error"]').hide();
+        $(this).closest("#id-upload-front").removeClass("error");
       }
     });
   }
   if (backInput) {
     $(backInput).on("change", function () {
       if ($(this).val()) {
-        clearFieldError($(uploadBackContainer));
+        $(this).closest(".passport_details").find('[wr-type="error"]').hide();
+        $(this).closest("#id-upload-back").removeClass("error");
       }
     });
   }
