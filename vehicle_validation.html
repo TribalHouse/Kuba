@@ -3,172 +3,239 @@ $(document).ready(function () {
   "use strict";
 
   // --------------------------------------------------------------
-  // Global Constants & Configuration
+  // Global Setup (Preserving Webflow-specific handling)
   // --------------------------------------------------------------
-  const $form = $("#wf-form-Rent-Form");
-  const $datePickers = $(".flatpickr-input");
-  let formErrors = false;
-
-  // Data attribute selectors
-  const selectors = {
-    error: '[data-error]',
-    required: '[data-required]',
-    uploadSuccess: '[data-upload-success]'
-  };
+  $("input[type=file]").attr("multiple", "multiple");
+  $('[wr-type="error"]').hide();
+  $('[wr-type="required-field"]').removeClass("error");
+  var formErrors = false;
 
   // --------------------------------------------------------------
-  // Core Validation Utilities
+  // Core Validation Utilities (Modified for Webflow compatibility)
   // --------------------------------------------------------------
   function fieldError($field) {
-    const $container = $field.closest('[data-field-container]');
-    $container.addClass('error').find(selectors.error).show();
+    var errorElem = $field.siblings('[wr-type="error"]');
+    if (errorElem.length === 0) errorElem = $field.find('[wr-type="error"]');
+    errorElem.show();
+    $field.addClass("error");
     formErrors = true;
   }
 
   function clearFieldError($field) {
-    const $container = $field.closest('[data-field-container]');
-    $container.removeClass('error').find(selectors.error).hide();
+    $field.removeClass("error");
+    var errorElem = $field.siblings('[wr-type="error"]');
+    if (errorElem.length === 0) errorElem = $field.find('[wr-type="error"]');
+    errorElem.hide();
   }
 
   // --------------------------------------------------------------
-  // Step 1: Date Selection
+  // Step 1: Date Selection (Original Webflow implementation)
   // --------------------------------------------------------------
-  function initDatePickers() {
-    const $getStartedBtn = $('#slider-1');
-    const fp1 = flatpickr($datePickers[0], { 
-      minDate: "today", 
-      mode: "range" 
-    });
-
-    function validateDates(e) {
-      if (!$datePickers.eq(0).val()) {
-        e.preventDefault();
-        fieldError($datePickers.eq(0).closest('[data-field-container]'));
-      }
-    }
-
-    $getStartedBtn.on('click', validateDates);
-  }
-
-  // --------------------------------------------------------------
-  // Step 2: Driver Options & License Upload
-  // --------------------------------------------------------------
-  function initDriverOptions() {
-    const $withDriver = $('#with-driver');
-    const $selfDrive = $('#self-drive');
-    const $licenseFront = $('#license-details-front');
-    const $licenseBack = $('#license-details-back');
-
-    function toggleDriverOptions() {
-      if ($selfDrive.prop('checked')) {
-        $licenseFront.add($licenseBack).show();
-      } else {
-        $licenseFront.add($licenseBack).hide()
-          .find('input[type="file"]').val('');
-        clearFieldError($licenseFront.add($licenseBack));
-      }
-    }
-
-    $withDriver.add($selfDrive).on('change', function() {
-      const isChecked = $(this).prop('checked');
-      $(this).closest('label').toggleClass('active', isChecked);
-      clearFieldError($(this).closest('[data-field-container]'));
+  var rentForm = document.getElementById("wf-form-Rent-Form");
+  if (rentForm) {
+    var datePickers = rentForm.querySelectorAll(".flatpickr-input");
+    var getStartedBtn = rentForm.querySelector("#slider-1");
+    
+    if (datePickers.length > 0) {
+      var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
       
-      if ($(this).is($selfDrive)) toggleDriverOptions();
+      function checkForm(e) {
+        if (!datePickers[0].value) {
+          e.preventDefault();
+          fieldError($("#dates"));
+        }
+      }
+      
+      if (getStartedBtn) {
+        getStartedBtn.addEventListener("click", checkForm, true);
+      }
+    }
+  }
+
+  // --------------------------------------------------------------
+  // Step 2: Driver Options (Preserving original Webflow classes)
+  // --------------------------------------------------------------
+  var withDriver = document.getElementById("with-driver");
+  var selfDrive = document.getElementById("self-drive");
+  var licenseDetailsFront = document.getElementById("license-details-front");
+  var licenseDetailsBack = document.getElementById("license-details-back");
+
+  // Initialize driver options
+  if (withDriver && selfDrive) {
+    // Reset initial states
+    [withDriver, selfDrive].forEach(function(checkbox) {
+      checkbox.checked = false;
+      $(checkbox).closest("label").removeClass("w--redirected-checked");
     });
 
-    $('#slider-2').on('click', function(e) {
+    // With Driver handler
+    withDriver.addEventListener("change", function() {
+      if (this.checked) {
+        selfDrive.checked = false;
+        $(selfDrive).closest("label").removeClass("w--redirected-checked");
+        $(this).closest("label").addClass("w--redirected-checked");
+      }
+      clearFieldError($(this).closest("label"));
+      clearFieldError($(selfDrive).closest("label"));
+    });
+
+    // Self Drive handler
+    selfDrive.addEventListener("change", function() {
+      if (this.checked) {
+        withDriver.checked = false;
+        $(withDriver).closest("label").removeClass("w--redirected-checked");
+        $(this).closest("label").addClass("w--redirected-checked");
+        
+        // Show license upload fields
+        if (licenseDetailsFront) licenseDetailsFront.style.display = "block";
+        if (licenseDetailsBack) licenseDetailsBack.style.display = "block";
+      } else {
+        // Hide license upload fields
+        if (licenseDetailsFront) {
+          licenseDetailsFront.style.display = "none";
+          clearFieldError($(licenseDetailsFront));
+        }
+        if (licenseDetailsBack) {
+          licenseDetailsBack.style.display = "none";
+          clearFieldError($(licenseDetailsBack));
+        }
+      }
+      clearFieldError($(this).closest("label"));
+      clearFieldError($(withDriver).closest("label"));
+    });
+  }
+
+  // Step 2 Validation (Original implementation)
+  var slider2 = document.getElementById("slider-2");
+  if (slider2) {
+    slider2.addEventListener("click", function(e) {
       formErrors = false;
       
       // Validate driver selection
-      if (!$withDriver.prop('checked') && !$selfDrive.prop('checked')) {
-        fieldError($withDriver.closest('[data-field-container]'));
-        fieldError($selfDrive.closest('[data-field-container]'));
+      if (!withDriver.checked && !selfDrive.checked) {
+        e.preventDefault();
+        fieldError($(withDriver).closest("label"));
+        fieldError($(selfDrive).closest("label"));
         return false;
       }
 
       // Validate license uploads if self-drive
-      if ($selfDrive.prop('checked')) {
-        $licenseFront.add($licenseBack).each(function() {
-          const $input = $(this).find('input[type="file"]');
-          if (!$input.val()) fieldError($(this));
-        });
+      if (selfDrive.checked) {
+        var licenseFrontInput = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
+        var licenseBackInput = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
+
+        if (licenseFrontInput && !licenseFrontInput.value) {
+          fieldError($(licenseDetailsFront));
+          formErrors = true;
+        }
+        if (licenseBackInput && !licenseBackInput.value) {
+          fieldError($(licenseDetailsBack));
+          formErrors = true;
+        }
       }
-
-      if (formErrors) e.preventDefault();
-    });
-  }
-
-  // --------------------------------------------------------------
-  // Step 3: Airport Pickup
-  // --------------------------------------------------------------
-  function initAirportPickup() {
-    const $airportPickup = $('#airport-pickup');
-    const $flightNumber = $('#flight-number');
-    const $flightTime = $('#flight-time');
-    const fp2 = flatpickr($datePickers[1], { 
-      minDate: "today", 
-      mode: "range" 
-    });
-
-    $('#slider-3').on('click', function(e) {
-      if (!$airportPickup.prop('checked')) return;
-      
-      formErrors = false;
-      const requiredFields = [$flightNumber, $flightTime, $datePickers.eq(1)];
-      
-      requiredFields.forEach($field => {
-        if (!$field.val()) fieldError($field.closest('[data-field-container]'));
-      });
-
-      if (formErrors) e.preventDefault();
-    });
-  }
-
-  // --------------------------------------------------------------
-  // Final Submission & File Upload Handling
-  // --------------------------------------------------------------
-  function initFormSubmission() {
-    $form.off('submit').on('submit', function(e) {
-      formErrors = false;
-      
-      // Validate passport uploads
-      $('#id-upload-front, #id-upload-back').each(function() {
-        const $input = $(this).find('input[type="file"]');
-        if (!$input.val()) fieldError($(this));
-      });
-
-      // Cleanup unused checkboxes
-      $('.multi-select-wrap input[type="checkbox"]:not(:checked)').removeAttr('name');
 
       if (formErrors) {
         e.preventDefault();
-        $form[0].scrollIntoView({ behavior: 'smooth' });
+        return false;
       }
-    });
+
+      // Original Webflow step progression
+      Webflow.push(function() {
+        // Proceed to Step 3
+      });
+    }, true);
   }
 
   // --------------------------------------------------------------
-  // Initialization
+  // Step 3: Airport Pickup (Original implementation)
   // --------------------------------------------------------------
-  function init() {
-    $('input[type="file"]').attr('multiple', true);
-    $(selectors.error).hide();
-    $(selectors.required).removeClass('error');
-
-    initDatePickers();
-    initDriverOptions();
-    initAirportPickup();
-    initFormSubmission();
-
-    // Dynamic field population
-    $(window).on('load', function() {
-      const modelInfo = $('#make').text() + ' ' + $('#car-name').text();
-      $('[data-model-input]').val(modelInfo);
-      $('#page-name').val(window.location.href);
-    });
+  var airportPickup = document.getElementById("airport-pickup");
+  var flightNumber = document.getElementById("flight-number");
+  var flightTime = document.getElementById("flight-time");
+  var nextStepBtn2 = rentForm.querySelector("#slider-3");
+  
+  if (datePickers.length > 1) {
+    var fp2 = flatpickr(datePickers[1], { minDate: "today", mode: "range" });
   }
 
-  init();
+  if (nextStepBtn2) {
+    nextStepBtn2.addEventListener("click", function(e) {
+      if (airportPickup && airportPickup.checked) {
+        var errors = [];
+        
+        if (!flightNumber.value) {
+          fieldError($(flightNumber));
+          errors.push(true);
+        }
+        if (!flightTime.value) {
+          fieldError($(flightTime));
+          errors.push(true);
+        }
+        if (datePickers[1] && !datePickers[1].value) {
+          fieldError($(datePickers[1]));
+          errors.push(true);
+        }
+
+        if (errors.length > 0) {
+          e.preventDefault();
+          return false;
+        }
+      }
+    }, true);
+  }
+
+  // --------------------------------------------------------------
+  // Step 5: Passport Upload (Webflow file upload compatibility)
+  // --------------------------------------------------------------
+  $("#wf-form-Rent-Form").on("submit", function(e) {
+    // Validate passport uploads using Webflow's success classes
+    var frontUploaded = $("#id-upload-front .w-file-upload-success").is(":visible");
+    var backUploaded = $("#id-upload-back .w-file-upload-success").is(":visible");
+    
+    if (!frontUploaded) fieldError($("#id-upload-front"));
+    if (!backUploaded) fieldError($("#id-upload-back"));
+
+    if (!frontUploaded || !backUploaded) {
+      e.preventDefault();
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+    }
+  });
+
+  // --------------------------------------------------------------
+  // Preserving original dynamic field population
+  // --------------------------------------------------------------
+  $(window).on("load", function() {
+    var model = document.getElementById("make");
+    var carName = document.getElementById("car-name");
+    var modelInputs = $("[id^='Vehicle-Model-Number']");
+    
+    if (model && carName) {
+      var modelInfo = model.textContent + " " + carName.textContent;
+      modelInputs.val(modelInfo);
+    }
+    
+    var pageNameInput = document.getElementById("page-name");
+    if (pageNameInput) pageNameInput.value = window.location.href;
+  });
+
+  // --------------------------------------------------------------
+  // Original region checkbox handling
+  // --------------------------------------------------------------
+  $("#wf-form-Rent-Form").on("submit", function() {
+    $(".multi-select-wrap input[type='checkbox']").each(function() {
+      if (!this.checked) $(this).removeAttr("name");
+    });
+  });
+
+  // --------------------------------------------------------------
+  // Original search functionality
+  // --------------------------------------------------------------
+  $(".on-page-search").on("keyup", function() {
+    var searchVal = $(this).val().toLowerCase();
+    $(".search-result").each(function() {
+      var text = $(this).text().toLowerCase();
+      $(this).toggleClass("noresults", text.indexOf(searchVal) === -1);
+    });
+  });
 });
 </script>
