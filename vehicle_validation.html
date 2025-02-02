@@ -3,7 +3,7 @@ $(document).ready(function () {
   "use strict";
   console.log("[Global] Script initialized.");
 
-  // Disable native HTML5 validation.
+  // Disable native HTML5 validation on the form.
   $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
 
   // --------------------------------------------------------------
@@ -67,7 +67,7 @@ $(document).ready(function () {
   var licenseDetailsBack = document.getElementById("license-details-back");
   console.log("[Step 2] License details front:", licenseDetailsFront, "back:", licenseDetailsBack);
 
-  // Default states: none selected.
+  // Set default states (none selected).
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -87,14 +87,12 @@ $(document).ready(function () {
     console.log("[Step 2] License back hidden.");
   }
 
-  // Retrieve file inputs.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
   console.log("[Step 2] licenseInputFront:", licenseInputFront, "licenseInputBack:", licenseInputBack);
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
-  // "With Driver" change event.
   if (withDriver) {
     withDriver.addEventListener("change", function () {
       console.log("[Step 2] withDriver change. Checked:", $(withDriver).is(":checked"));
@@ -112,7 +110,6 @@ $(document).ready(function () {
     });
   }
 
-  // "Self Drive" change event.
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
       console.log("[Step 2] selfDrive change. Checked:", $(selfDrive).is(":checked"));
@@ -286,7 +283,7 @@ $(document).ready(function () {
       console.log("[Step 4] Proceeding from Step 4.");
     }, true);
   }
-  // (Removed region cleanup code as per request.)
+  // (Region checkbox cleanup removed as per request.)
 
   // --------------------------------------------------------------
   // Step 5: Passport Upload Validation
@@ -304,8 +301,7 @@ $(document).ready(function () {
       console.log("[Step 5] Front passport file input triggered.");
       clearFieldError($(uploadFrontContainer));
       setTimeout(function () {
-        // Check by file input value as backup.
-        var frontHasValue = $(frontInput).val() !== "";
+        var frontHasValue = $(frontInput).val().trim() !== "";
         console.log("[Step 5] Front input value present:", frontHasValue);
         if (frontHasValue) {
           clearFieldError($(uploadFrontContainer));
@@ -318,7 +314,7 @@ $(document).ready(function () {
       console.log("[Step 5] Back passport file input triggered.");
       clearFieldError($(uploadBackContainer));
       setTimeout(function () {
-        var backHasValue = $(backInput).val() !== "";
+        var backHasValue = $(backInput).val().trim() !== "";
         console.log("[Step 5] Back input value present:", backHasValue);
         if (backHasValue) {
           clearFieldError($(uploadBackContainer));
@@ -333,11 +329,15 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").off("submit.finalValidation");
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
-    // Clear all previous errors.
+
+    // Remove required attributes from fields that might be hidden
+    $(this).find("input[required]").removeAttr("required");
+    
+    // Clear all previous error states.
     $('[wr-type="error"]').hide();
     $(".error").removeClass("error");
 
-    // Validate Email and Phone.
+    // Validate Email and Phone fields.
     var emailInput = rentForm.querySelector('input[name="Email-Adress"]');
     var phoneInput = rentForm.querySelector('input[name="Phone-Number"]');
     var emailValid = emailInput && $(emailInput).val().trim() !== "";
@@ -350,7 +350,6 @@ $(document).ready(function () {
       console.log("[Final Submission] Phone number is missing.");
       fieldError($(phoneInput));
     }
-
     var valid = emailValid && phoneValid;
 
     // Validate passport uploads.
@@ -375,7 +374,7 @@ $(document).ready(function () {
       e.preventDefault();
       e.stopPropagation();
     } else {
-      console.log("[Final Submission] Validation passed. Form will be submitted.");
+      console.log("[Final Submission] Validation passed. Submitting form.");
       $('[wr-type="error"]').hide();
     }
   });
@@ -400,7 +399,7 @@ $(document).ready(function () {
   }
   if (checkboxLicense && licenseDetails) {
     checkboxLicense.addEventListener("click", function () {
-      console.log("[Customization] self-drive (for regions) toggled. Checked:", checkboxLicense.checked);
+      console.log("[Customization] self-drive toggled for regions. Checked:", checkboxLicense.checked);
       licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
     });
   }
