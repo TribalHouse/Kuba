@@ -316,14 +316,16 @@ $(document).ready(function () {
   if (frontInput) {
     $(frontInput).on("change", function () {
       if ($(this).val()) {
-        clearFieldError($(uploadFrontContainer));
+        // Clear errors on the front container individually.
+        $(uploadFrontContainer).removeClass("error").find('[wr-type="error"]').hide();
       }
     });
   }
   if (backInput) {
     $(backInput).on("change", function () {
       if ($(this).val()) {
-        clearFieldError($(uploadBackContainer));
+        // Clear errors on the back container individually.
+        $(uploadBackContainer).removeClass("error").find('[wr-type="error"]').hide();
       }
     });
   }
