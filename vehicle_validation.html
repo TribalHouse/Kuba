@@ -331,7 +331,7 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
 
-    // --- New Code: Process region checkboxes ---
+    // --- Process region checkboxes ---
     var selectedRegions = [];
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
@@ -341,12 +341,12 @@ $(document).ready(function () {
           selectedRegions.push(regionValue);
         }
       }
-      // Remove the name attribute from every region checkbox
-      $checkbox.removeAttr("name");
     });
     // Set the comma-separated region values in the hidden input.
     $('#selectedRegions').val(selectedRegions.join(', '));
     console.log("[Final Submission] Selected Regions:", $('#selectedRegions').val());
+    // Remove the region checkboxes from submission so they don't submit a false value.
+    $('input[name="regions[]"]').remove();
     // --------------------------------------------------
 
     // Cleanup multi-select checkboxes (if any) so that unchecked ones do not submit
