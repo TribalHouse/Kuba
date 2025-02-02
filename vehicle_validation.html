@@ -3,6 +3,9 @@ $(document).ready(function () {
   "use strict";
   console.log("[Global] Script initialized.");
 
+  // Disable native HTML5 validation on the form.
+  $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
+
   // --------------------------------------------------------------
   // Global Setup
   // --------------------------------------------------------------
@@ -11,6 +14,7 @@ $(document).ready(function () {
   $('[wr-type="required-field"]').removeClass("error");
   var formErrors = false;
 
+  // Utility: Mark a field as having an error.
   function fieldError($field) {
     console.log("[fieldError] Triggered on:", $field);
     var errorElem = $field.siblings('[wr-type="error"]');
@@ -23,6 +27,7 @@ $(document).ready(function () {
     console.log("[fieldError] Error shown for:", $field);
   }
 
+  // Utility: Clear a field's error.
   function clearFieldError($field) {
     console.log("[clearFieldError] Clearing errors on:", $field);
     $field.removeClass("error");
@@ -64,7 +69,6 @@ $(document).ready(function () {
   var licenseDetailsBack = document.getElementById("license-details-back");
   console.log("[Step 2] License details front:", licenseDetailsFront, "back:", licenseDetailsBack);
 
-  // Set default states (none selected).
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -84,17 +88,15 @@ $(document).ready(function () {
     console.log("[Step 2] License back hidden.");
   }
 
-  // Retrieve file inputs.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
   console.log("[Step 2] licenseInputFront:", licenseInputFront, "licenseInputBack:", licenseInputBack);
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
-  // withDriver change event.
   if (withDriver) {
     withDriver.addEventListener("change", function () {
-      console.log("[Step 2] withDriver change. Checked:", $(withDriver).is(":checked"));
+      console.log("[Step 2] withDriver changed. Checked:", $(withDriver).is(":checked"));
       if ($(withDriver).is(":checked")) {
         if (selfDrive) {
           selfDrive.checked = false;
@@ -109,10 +111,9 @@ $(document).ready(function () {
     });
   }
 
-  // selfDrive change event.
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
-      console.log("[Step 2] selfDrive change. Checked:", $(selfDrive).is(":checked"));
+      console.log("[Step 2] selfDrive changed. Checked:", $(selfDrive).is(":checked"));
       if ($(selfDrive).is(":checked")) {
         if (withDriver) {
           withDriver.checked = false;
