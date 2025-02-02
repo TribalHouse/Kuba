@@ -345,8 +345,8 @@ $(document).ready(function () {
     // Set the comma-separated region values in the hidden input.
     $('#selectedRegions').val(selectedRegions.join(', '));
     console.log("[Final Submission] Selected Regions:", $('#selectedRegions').val());
-    // Remove the region checkboxes from submission so they don't submit a false value.
-    $('input[name="regions[]"]').remove();
+    // Disable the region checkboxes to prevent them from submitting any value.
+    $('input[name="regions[]"]').prop('disabled', true);
     // --------------------------------------------------
 
     // Cleanup multi-select checkboxes (if any) so that unchecked ones do not submit
