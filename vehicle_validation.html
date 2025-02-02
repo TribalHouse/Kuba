@@ -57,7 +57,7 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Set default states.
+  // Default states.
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -87,7 +87,7 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      // Clear any error on these fields.
+      // Clear error messages on toggle.
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
@@ -106,16 +106,16 @@ $(document).ready(function () {
         if (licenseDetailsBack) { licenseDetailsBack.style.display = "block"; }
       } else {
         $(selfDrive).closest("label").removeClass("w--redirected-checked");
-        if (licenseDetailsFront) { 
-          licenseDetailsFront.style.display = "none"; 
+        if (licenseDetailsFront) {
+          licenseDetailsFront.style.display = "none";
           clearFieldError($(licenseDetailsFront));
         }
-        if (licenseDetailsBack) { 
-          licenseDetailsBack.style.display = "none"; 
+        if (licenseDetailsBack) {
+          licenseDetailsBack.style.display = "none";
           clearFieldError($(licenseDetailsBack));
         }
       }
-      // Clear errors on the driver options.
+      // Always clear errors on these fields.
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
@@ -158,7 +158,7 @@ $(document).ready(function () {
     }, true);
   }
 
-  // Clear file errors in Step 2 immediately.
+  // Clear file errors in Step 2 (for both change and click).
   if (licenseInputFront) {
     $(licenseInputFront).on("change click", function () {
       clearFieldError($(licenseDetailsFront));
@@ -227,12 +227,12 @@ $(document).ready(function () {
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // No blocking validation.
+    // No blocking validation; user may proceed.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) { checkForm4(e); }, true);
   }
-  // Remove unchecked region checkboxes so only checked ones are sent.
+  // Clean up region checkboxes.
   $("#wf-form-Rent-Form").on("submit", function () {
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
@@ -274,41 +274,39 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   // Final Submission: Validate Only Passport Upload (Step 5)
   // --------------------------------------------------------------
-  // Remove any previous submit handlers to ensure only final validation runs.
-  $("#wf-form-Rent-Form").off("submit");
-  $("#wf-form-Rent-Form").on("submit", function (e) {
-    // Clear all error states.
+  // Use a final submit handler that waits briefly before checking the upload states.
+  $("#wf-form-Rent-Form").off("submit.finalValidation").on("submit.finalValidation", function (e) {
+    // Clear all previous error states.
     $('[wr-type="error"]').hide();
     $(".error").removeClass("error");
-
     // Clean up region checkboxes.
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
     });
-    
-    var valid = true;
-    // Validate passport uploads only.
-    if (frontInput) {
-      var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
-      if (!frontUploaded) {
-        fieldError($(uploadFrontContainer));
-        valid = false;
+    e.preventDefault();
+    e.stopPropagation();
+    setTimeout(function () {
+      var valid = true;
+      if (frontInput) {
+        var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
+        if (!frontUploaded) {
+          fieldError($(uploadFrontContainer));
+          valid = false;
+        }
       }
-    }
-    if (backInput) {
-      var backUploaded = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
-      if (!backUploaded) {
-        fieldError($(uploadBackContainer));
-        valid = false;
+      if (backInput) {
+        var backUploaded = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
+        if (!backUploaded) {
+          fieldError($(uploadBackContainer));
+          valid = false;
+        }
       }
-    }
-    if (!valid) {
-      e.preventDefault();
-      e.stopPropagation();
-    } else {
-      // Hide errors before submission.
-      $('[wr-type="error"]').hide();
-    }
+      if (valid) {
+        // Unbind our final validation handler and submit the form.
+        $("#wf-form-Rent-Form").off("submit.finalValidation");
+        $("#wf-form-Rent-Form").submit();
+      }
+    }, 300);
   });
 
   // --------------------------------------------------------------
