@@ -331,19 +331,22 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
 
-    // --- New Code: Collect selected region values ---
+    // --- New Code: Process region checkboxes ---
     var selectedRegions = [];
-    $('input[name="regions[]"]:checked').each(function() {
-      var regionValue = $(this).attr('data-ms-value');
-      if (regionValue) {
-        selectedRegions.push(regionValue);
+    $('input[name="regions[]"]').each(function() {
+      var $checkbox = $(this);
+      if ($checkbox.is(":checked")) {
+        var regionValue = $checkbox.attr('data-ms-value');
+        if (regionValue) {
+          selectedRegions.push(regionValue);
+        }
       }
+      // Remove the name attribute from every region checkbox
+      $checkbox.removeAttr("name");
     });
     // Set the comma-separated region values in the hidden input.
     $('#selectedRegions').val(selectedRegions.join(', '));
     console.log("[Final Submission] Selected Regions:", $('#selectedRegions').val());
-    // Remove the name attribute from region checkboxes so they don't submit an unwanted value.
-    $('input[name="regions[]"]').removeAttr("name");
     // --------------------------------------------------
 
     // Cleanup multi-select checkboxes (if any) so that unchecked ones do not submit
@@ -451,18 +454,18 @@ $(document).ready(function () {
   });
 
   // --------------------------------------------------------------
-  // Populate Model Fields and Page URL on Window Load
+  // Populate CarName and Page URL on Window Load
   // --------------------------------------------------------------
   $(window).on("load", function () {
-    var model = document.getElementById("make");
+    // Populate CarName solely from the element with ID "car-name"
     var carName = document.getElementById("car-name");
     var modelInput1 = document.getElementById("Vehicle-Model-Number");
     var modelInput2 = document.getElementById("Vehicle-Model-Number-2");
     var modelInput3 = document.getElementById("Vehicle-Model-Number-3");
     var modelInput4 = document.getElementById("Vehicle-Model-Number-4");
     var pageNameInput = document.getElementById("page-name");
-    if (model && carName) {
-      var modelInfo = model.textContent + " " + carName.textContent;
+    if (carName) {
+      var modelInfo = carName.textContent;
       console.log("[Populate] Model info:", modelInfo);
       if (modelInput1) { modelInput1.value = modelInfo; }
       if (modelInput2) { modelInput2.value = modelInfo; }
