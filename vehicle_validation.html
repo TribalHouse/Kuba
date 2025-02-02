@@ -87,7 +87,7 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      // Always clear errors on these fields.
+      // Always clear error messages for these fields.
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
@@ -157,18 +157,14 @@ $(document).ready(function () {
     }, true);
   }
 
-  // Clear file errors in Step 2 immediately on change.
+  // Clear file errors in Step 2 immediately on change/click.
   if (licenseInputFront) {
-    $(licenseInputFront).on("change", function () {
-      clearFieldError($(licenseDetailsFront));
-    }).on("click", function () {
+    $(licenseInputFront).on("change click", function () {
       clearFieldError($(licenseDetailsFront));
     });
   }
   if (licenseInputBack) {
-    $(licenseInputBack).on("change", function () {
-      clearFieldError($(licenseDetailsBack));
-    }).on("click", function () {
+    $(licenseInputBack).on("change click", function () {
       clearFieldError($(licenseDetailsBack));
     });
   }
@@ -230,12 +226,12 @@ $(document).ready(function () {
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // No blocking validation; user may proceed.
+    // No blocking validation.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) { checkForm4(e); }, true);
   }
-  // Remove unchecked region checkboxes so only checked ones are sent.
+  // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
   $("#wf-form-Rent-Form").on("submit", function () {
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
@@ -273,17 +269,22 @@ $(document).ready(function () {
       }, 700);
     });
   }
-  
+
   // --------------------------------------------------------------
-  // Final Submission: Validate Only Passport Upload (Step 5) & Clean Regions
+  // Final Submission: Consolidated Handler
   // --------------------------------------------------------------
-  $("#wf-form-Rent-Form").on("submit", function (e) {
-    // Clean up region checkboxes.
+  $("#wf-form-Rent-Form").off("submit.finalValidation").on("submit.finalValidation", function (e) {
+    // Clear all error states first.
+    $('[wr-type="error"]').hide();
+    $(".error").removeClass("error");
+
+    // Remove unchecked region checkboxes.
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
     });
     
     var valid = true;
+    // Only validate the passport upload step.
     if (frontInput) {
       var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
       if (!frontUploaded) {
@@ -302,6 +303,7 @@ $(document).ready(function () {
       e.preventDefault();
       e.stopPropagation();
     } else {
+      // Hide errors before submission.
       $('[wr-type="error"]').hide();
     }
   });
