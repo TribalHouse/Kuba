@@ -330,6 +330,13 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
 
+    $(".multi-select-wrap input[type='checkbox']").each(function () {
+  if (!$(this).is(":checked")) {
+    // Remove the name so unchecked items do not appear in the form submission
+    $(this).removeAttr("name");
+  }
+});
+
     // Remove required attributes from fields that might be hidden
     $(this).find("input[required]").removeAttr("required");
     
@@ -379,6 +386,8 @@ $(document).ready(function () {
     }
   });
 
+  
+  
   // --------------------------------------------------------------
   // Form Customization: Toggle Display for Optional Sections
   // --------------------------------------------------------------
