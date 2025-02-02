@@ -274,8 +274,7 @@ $(document).ready(function () {
     outOfAccra.removeAttribute("required");
   }
   function checkForm4(e) {
-    // Allow user to proceed even if no region is selected.
-    // (Optional: you can still add any custom behavior here if needed.)
+    // Allow user to proceed regardless of region selection.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) {
@@ -285,9 +284,9 @@ $(document).ready(function () {
   
   // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
   $("#wf-form-Rent-Form").on("submit", function () {
-    checkbox9.forEach(function (checkbox) {
-      if (!checkbox.checked) {
-        checkbox.removeAttribute("name");
+    $("input[name='checkbox-9']").each(function () {
+      if (!$(this).is(":checked")) {
+        $(this).removeAttr("name");
       }
     });
   });
