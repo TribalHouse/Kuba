@@ -57,7 +57,7 @@ $(document).ready(function () {
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
-  // Default states on page load.
+  // Default states.
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -75,7 +75,7 @@ $(document).ready(function () {
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
-  // Change events for "With Driver".
+  // "With Driver" change event.
   if (withDriver) {
     withDriver.addEventListener("change", function () {
       if ($(withDriver).is(":checked")) {
@@ -87,13 +87,13 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      // Clear errors on change.
+      // Clear errors unconditionally.
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
   }
 
-  // Change events for "Self Drive".
+  // "Self Drive" change event.
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
       if ($(selfDrive).is(":checked")) {
@@ -108,12 +108,16 @@ $(document).ready(function () {
         $(selfDrive).closest("label").removeClass("w--redirected-checked");
         if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
         if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
+        // When self-drive is unchecked, clear errors on the license containers.
+        if (licenseDetailsFront) { clearFieldError($(licenseDetailsFront)); }
+        if (licenseDetailsBack) { clearFieldError($(licenseDetailsBack)); }
       }
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
   }
 
+  // Validate Step 2.
   function validateStep2(e) {
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
       e.preventDefault();
@@ -220,12 +224,12 @@ $(document).ready(function () {
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // No blocking validation.
+    // No blocking validation; user may proceed.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) { checkForm4(e); }, true);
   }
-  // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
+  // Remove unchecked region checkboxes so only checked ones are submitted.
   $("#wf-form-Rent-Form").on("submit", function () {
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
@@ -242,9 +246,10 @@ $(document).ready(function () {
   if (frontInput) { $(frontInput).attr("wr-type", "required-field"); }
   if (backInput) { $(backInput).attr("wr-type", "required-field"); }
   
-  // Use a delay to let Webflow update the success container, then clear errors.
+  // Passport Upload Change Events: Immediately clear errors, then after a delay re-check the success container.
   if (frontInput) {
     $(frontInput).on("change", function () {
+      clearFieldError($(uploadFrontContainer));
       setTimeout(function () {
         if ($(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0) {
           clearFieldError($(uploadFrontContainer));
@@ -254,6 +259,7 @@ $(document).ready(function () {
   }
   if (backInput) {
     $(backInput).on("change", function () {
+      clearFieldError($(uploadBackContainer));
       setTimeout(function () {
         if ($(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0) {
           clearFieldError($(uploadBackContainer));
@@ -261,8 +267,10 @@ $(document).ready(function () {
       }, 500);
     });
   }
-  
-  // Unified final submit event.
+
+  // --------------------------------------------------------------
+  // Final Submission: Validate Only Final Step (Passport Upload) & Region Cleanup
+  // --------------------------------------------------------------
   $("#wf-form-Rent-Form").on("submit", function (e) {
     // Remove unchecked region checkboxes.
     $(".multi-select-wrap input[type='checkbox']").each(function () {
@@ -270,7 +278,7 @@ $(document).ready(function () {
     });
     
     var valid = true;
-    // Validate Step 5 Passport Uploads by checking success container.
+    // Validate Passport Upload fields only.
     if (frontInput) {
       var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
       if (!frontUploaded) {
@@ -285,11 +293,11 @@ $(document).ready(function () {
         valid = false;
       }
     }
-    
     if (!valid) {
       e.preventDefault();
       e.stopPropagation();
     } else {
+      // Hide errors just before submission.
       $('[wr-type="error"]').hide();
     }
   });
