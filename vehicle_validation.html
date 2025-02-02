@@ -52,9 +52,12 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
+
+  // Grab the containers for the license uploads.
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
 
+  // Set default states on page load (none selected).
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -63,14 +66,18 @@ $(document).ready(function () {
     $(selfDrive).prop("checked", false).removeAttr("checked");
     $(selfDrive).closest("label").removeClass("w--redirected-checked");
   }
+
+  // Initially hide the license upload containers.
   if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
   if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
 
+  // Retrieve file input elements.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
+  // Listen for changes on "With Driver".
   if (withDriver) {
     withDriver.addEventListener("change", function () {
       if ($(withDriver).is(":checked")) {
@@ -88,6 +95,8 @@ $(document).ready(function () {
       }
     });
   }
+
+  // Listen for changes on "Self Drive".
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
       if ($(selfDrive).is(":checked")) {
@@ -110,6 +119,7 @@ $(document).ready(function () {
     });
   }
 
+  // Validate Step 2.
   function validateStep2(e) {
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
       e.preventDefault();
@@ -146,6 +156,8 @@ $(document).ready(function () {
       }
     }, true);
   }
+
+  // Clear file input errors in Step 2.
   if (licenseInputFront) {
     $(licenseInputFront).on("change", function () {
       if ($(this).val()) { clearFieldError($(licenseDetailsFront)); }
@@ -203,7 +215,6 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
-  // Now using region checkboxes by their container class "multi-select-wrap"
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
     // No blocking validation; user may proceed.
@@ -213,7 +224,7 @@ $(document).ready(function () {
   }
   // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
   $("#wf-form-Rent-Form").on("submit", function () {
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
+    $(".w-checkbox.search-result input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
     });
   });
@@ -228,12 +239,10 @@ $(document).ready(function () {
   if (frontInput) { $(frontInput).attr("wr-type", "required-field"); }
   if (backInput) { $(backInput).attr("wr-type", "required-field"); }
 
-  // Update the change events to clear errors using the same approach as Step 2.
+  // Attach change events with a delay to allow Webflow's success state to update.
   if (frontInput) {
     $(frontInput).on("change", function () {
-      // Allow a brief delay for Webflow to update the success container.
       setTimeout(function () {
-        // Check if the front upload shows a success state.
         if ($(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0) {
           clearFieldError($(uploadFrontContainer));
         }
@@ -253,7 +262,7 @@ $(document).ready(function () {
   // Validate Step 5 on form submission.
   $("#wf-form-Rent-Form").on("submit", function (e) {
     var valid = true;
-    // Instead of checking the file input value, check the success container.
+    // Check for front upload success state.
     if (frontInput) {
       var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
       if (!frontUploaded) {
@@ -261,6 +270,7 @@ $(document).ready(function () {
         valid = false;
       }
     }
+    // Check for back upload success state.
     if (backInput) {
       var backUploaded = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
       if (!backUploaded) {
