@@ -331,18 +331,19 @@ $(document).ready(function () {
 
     // --- Process region checkboxes ---
     var selectedRegions = [];
+    // Loop over each checkbox with name "regions[]"
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
       if ($checkbox.is(":checked")) {
-        // Push the custom value from data-ms-value into our array
+        // Push its custom value from data-ms-value into our array
         selectedRegions.push($checkbox.attr("data-ms-value"));
       }
     });
-    // Place the joined region names into the hidden input "regionsText"
+    // Set the joined region names into the hidden input "regionsText"
     $("#selectedRegions").val(selectedRegions.join(', '));
     console.log("[Final Submission] Selected Regions:", $("#selectedRegions").val());
-    // Remove the name attribute from region checkboxes so they don't submit unwanted values.
-    $('input[name="regions[]"]').removeAttr("name");
+    // Remove the region checkboxes from the DOM so they aren't submitted.
+    $('input[name="regions[]"]').remove();
     // --------------------------------------------------
 
     // Cleanup multi-select checkboxes (if any)
