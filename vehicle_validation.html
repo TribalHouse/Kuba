@@ -274,23 +274,24 @@ $(document).ready(function () {
     outOfAccra.removeAttribute("required");
   }
   function checkForm4(e) {
-    // Allow user to proceed even if no region is selected.
-    // (Optional: you can still add any custom behavior here if needed.)
+    if (outOfAccra && outOfAccra.checked) {
+      var regionSelected = false;
+      checkbox9.forEach(function (checkbox) {
+        if (checkbox.checked) {
+          regionSelected = true;
+        }
+      });
+      if (!regionSelected) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) {
       checkForm4(e);
     }, true);
   }
-  
-  // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
-  $("#wf-form-Rent-Form").on("submit", function () {
-    checkbox9.forEach(function (checkbox) {
-      if (!checkbox.checked) {
-        checkbox.removeAttribute("name");
-      }
-    });
-  });
 
   // --------------------------------------------------------------
   // Step 5: Passport Upload Validation
