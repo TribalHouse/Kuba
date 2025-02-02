@@ -206,29 +206,53 @@ $(document).ready(function () {
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
   var nextStepBtn2 = rentForm.querySelector("#slider-3");
+
+  // Initialize the second flatpickr instance (for pickup/drop-off dates).
   var fp2 = flatpickr(datePickers[1], { minDate: "today", mode: "range" });
+
+  // Remove unnecessary validation attributes from optional fields.
   $(datePickers[1]).removeAttr("wr-type required");
-  if (flightNumber) { $(flightNumber).removeAttr("wr-type required"); }
-  if (flightTime) { $(flightTime).removeAttr("wr-type required"); }
+  if (flightNumber) $(flightNumber).removeAttr("wr-type required");
+  if (flightTime) $(flightTime).removeAttr("wr-type required");
+
+  // Clear error message when the date is selected or modified.
   $(datePickers[1]).on("input change", function () {
-    if ($(this).val()) { clearFieldError($(this)); }
+    if ($(this).val()) {
+      clearFieldError($(this));
+    }
   });
+
+  // Clear error messages when the flight number is updated.
   if (flightNumber) {
     $(flightNumber).on("input change", function () {
-      if ($(this).val()) { clearFieldError($(this)); }
+      if ($(this).val()) {
+        clearFieldError($(this));
+      }
     });
   }
+
+  // Clear error messages when the flight time is updated.
   if (flightTime) {
     $(flightTime).on("input change", function () {
-      if ($(this).val()) { clearFieldError($(this)); }
+      if ($(this).val()) {
+        clearFieldError($(this));
+      }
     });
   }
+
+  // Validate airport pickup details when Next is clicked.
   function checkForm3(e) {
     var errors = [];
     if (airportPickup && airportPickup.checked) {
-      if (!flightNumber || !flightNumber.value) { errors.push("#flight-number"); }
-      if (!flightTime || !flightTime.value) { errors.push("#flight-time"); }
-      if (!datePickers[1].value) { errors.push($(datePickers[1])); }
+      if (!flightNumber || !flightNumber.value) {
+        errors.push("#flight-number");
+      }
+      if (!flightTime || !flightTime.value) {
+        errors.push("#flight-time");
+      }
+      if (!datePickers[1].value) {
+        errors.push($(datePickers[1]));
+      }
     }
     if (errors.length > 0) {
       e.preventDefault();
@@ -238,48 +262,71 @@ $(document).ready(function () {
       });
     }
   }
-  if (nextStepBtn2) { nextStepBtn2.addEventListener("click", checkForm3, true); }
+  if (nextStepBtn2) nextStepBtn2.addEventListener("click", checkForm3, true);
 
   // --------------------------------------------------------------
   // Step 4: Out of Accra – Region Selection Validation
   // --------------------------------------------------------------
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
-  // Assume the region checkboxes are contained in an element with class "multi-select-wrap"
-  var regionCheckboxes = $(".multi-select-wrap input[type='checkbox']");
-  if (outOfAccra) { outOfAccra.removeAttribute("required"); }
+  var checkbox9 = document.querySelectorAll("[name='checkbox-9']");
+  if (outOfAccra) {
+    outOfAccra.removeAttribute("required");
+  }
   function checkForm4(e) {
     // Allow user to proceed regardless of region selection.
   }
   if (nextStepBtn3) {
-    nextStepBtn3.addEventListener("click", function (e) { checkForm4(e); }, true);
+    nextStepBtn3.addEventListener("click", function (e) {
+      checkForm4(e);
+    }, true);
   }
+  
   // Before final submission, remove unchecked region checkboxes so only checked ones are sent.
   $("#wf-form-Rent-Form").on("submit", function () {
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
-      if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
+    $("input[name='checkbox-9']").each(function () {
+      if (!$(this).is(":checked")) {
+        $(this).removeAttr("name");
+      }
     });
   });
 
   // --------------------------------------------------------------
   // Step 5: Passport Upload Validation
   // --------------------------------------------------------------
+  // Retrieve the containers for front and back picture uploads.
   var uploadFrontContainer = document.getElementById("id-upload-front");
   var uploadBackContainer = document.getElementById("id-upload-back");
+
+  // Retrieve the file input elements from these containers.
   var frontInput = uploadFrontContainer ? uploadFrontContainer.querySelector("input[type='file']") : null;
   var backInput = uploadBackContainer ? uploadBackContainer.querySelector("input[type='file']") : null;
-  if (frontInput) { $(frontInput).attr("wr-type", "required-field"); }
-  if (backInput) { $(backInput).attr("wr-type", "required-field"); }
+
+  // Apply the required-field attribute to these file inputs.
+  if (frontInput) {
+    $(frontInput).attr("wr-type", "required-field");
+  }
+  if (backInput) {
+    $(backInput).attr("wr-type", "required-field");
+  }
+
+  // Attach change event listeners to clear errors individually when files are uploaded.
   if (frontInput) {
     $(frontInput).on("change", function () {
-      if ($(this).val()) { clearFieldError($(uploadFrontContainer)); }
+      if ($(this).val()) {
+        clearFieldError($(uploadFrontContainer));
+      }
     });
   }
   if (backInput) {
     $(backInput).on("change", function () {
-      if ($(this).val()) { clearFieldError($(uploadBackContainer)); }
+      if ($(this).val()) {
+        clearFieldError($(uploadBackContainer));
+      }
     });
   }
+
+  // Validate Step 5 on form submission.
   $("#wf-form-Rent-Form").on("submit", function (e) {
     var valid = true;
     if (frontInput && !$(frontInput).val()) {
@@ -308,9 +355,11 @@ $(document).ready(function () {
   var locationDetails = document.getElementById("location-details");
   var licenseDetails = document.getElementById("license-details");
   var airportDetails = document.getElementById("airportpick-details");
-  if (locationDetails) { locationDetails.style.display = "none"; }
-  if (licenseDetails) { licenseDetails.style.display = "none"; }
-  if (airportDetails) { airportDetails.style.display = "none"; }
+
+  if (locationDetails) locationDetails.style.display = "none";
+  if (licenseDetails) licenseDetails.style.display = "none";
+  if (airportDetails) airportDetails.style.display = "none";
+
   if (checkboxLocation && locationDetails) {
     checkboxLocation.addEventListener("click", function () {
       locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
@@ -355,6 +404,7 @@ $(document).ready(function () {
     var modelInput3 = document.getElementById("Vehicle-Model-Number-3");
     var modelInput4 = document.getElementById("Vehicle-Model-Number-4");
     var pageNameInput = document.getElementById("page-name");
+
     if (model && carName) {
       var modelInfo = model.textContent + " " + carName.textContent;
       if (modelInput1) modelInput1.value = modelInfo;
