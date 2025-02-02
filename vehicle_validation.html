@@ -1,6 +1,10 @@
 <script>
 $(document).ready(function () {
   "use strict";
+  console.log("[Global] Script initialized.");
+
+  // Disable native HTML5 validation on the form.
+  $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
 
   // --------------------------------------------------------------
   // Global Setup
@@ -10,8 +14,8 @@ $(document).ready(function () {
   $('[wr-type="required-field"]').removeClass("error");
   var formErrors = false;
 
-  // Utility: Mark a field as having an error.
   function fieldError($field) {
+    console.log("[fieldError] Triggered on:", $field);
     var errorElem = $field.siblings('[wr-type="error"]');
     if (errorElem.length === 0) {
       errorElem = $field.find('[wr-type="error"]');
@@ -19,10 +23,11 @@ $(document).ready(function () {
     errorElem.show();
     $field.addClass("error");
     formErrors = true;
+    console.log("[fieldError] Error shown for:", $field);
   }
 
-  // Utility: Clear a field's error.
   function clearFieldError($field) {
+    console.log("[clearFieldError] Clearing errors on:", $field);
     $field.removeClass("error");
     var errorElem = $field.siblings('[wr-type="error"]');
     if (errorElem.length === 0) {
@@ -38,12 +43,15 @@ $(document).ready(function () {
   var datePickers = rentForm.querySelectorAll(".flatpickr-input");
   var getStartedBtn = rentForm.querySelector("#slider-1");
   var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
-
   function checkForm(e) {
+    console.log("[Step 1] Checking dates.");
     if (!datePickers[0].value) {
+      console.log("[Step 1] No date selected!");
       e.preventDefault();
       e.stopPropagation();
       fieldError($("#dates"));
+    } else {
+      console.log("[Step 1] Date selected:", datePickers[0].value);
     }
   }
   getStartedBtn.addEventListener("click", checkForm, true);
@@ -53,32 +61,41 @@ $(document).ready(function () {
   // --------------------------------------------------------------
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
+  console.log("[Step 2] withDriver:", withDriver, "selfDrive:", selfDrive);
 
-  // Containers for license uploads.
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
+  console.log("[Step 2] License details front:", licenseDetailsFront, "back:", licenseDetailsBack);
 
   // Set default states (none selected).
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
+    console.log("[Step 2] withDriver set to unchecked.");
   }
   if (selfDrive) {
     $(selfDrive).prop("checked", false).removeAttr("checked");
     $(selfDrive).closest("label").removeClass("w--redirected-checked");
+    console.log("[Step 2] selfDrive set to unchecked.");
   }
-  if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
-  if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
+  if (licenseDetailsFront) { 
+    licenseDetailsFront.style.display = "none"; 
+    console.log("[Step 2] License front hidden.");
+  }
+  if (licenseDetailsBack) { 
+    licenseDetailsBack.style.display = "none"; 
+    console.log("[Step 2] License back hidden.");
+  }
 
-  // Retrieve file input elements.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
+  console.log("[Step 2] licenseInputFront:", licenseInputFront, "licenseInputBack:", licenseInputBack);
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
-  // "With Driver" change event.
   if (withDriver) {
     withDriver.addEventListener("change", function () {
+      console.log("[Step 2] withDriver change. Checked:", $(withDriver).is(":checked"));
       if ($(withDriver).is(":checked")) {
         if (selfDrive) {
           selfDrive.checked = false;
@@ -88,42 +105,50 @@ $(document).ready(function () {
       } else {
         $(withDriver).closest("label").removeClass("w--redirected-checked");
       }
-      // Clear error messages.
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
   }
 
-  // "Self Drive" change event.
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
+      console.log("[Step 2] selfDrive change. Checked:", $(selfDrive).is(":checked"));
       if ($(selfDrive).is(":checked")) {
         if (withDriver) {
           withDriver.checked = false;
           $(withDriver).closest("label").removeClass("w--redirected-checked");
         }
         $(selfDrive).closest("label").addClass("w--redirected-checked");
-        if (licenseDetailsFront) { licenseDetailsFront.style.display = "block"; }
-        if (licenseDetailsBack) { licenseDetailsBack.style.display = "block"; }
+        if (licenseDetailsFront) { 
+          licenseDetailsFront.style.display = "block"; 
+          console.log("[Step 2] License front displayed.");
+        }
+        if (licenseDetailsBack) { 
+          licenseDetailsBack.style.display = "block"; 
+          console.log("[Step 2] License back displayed.");
+        }
       } else {
         $(selfDrive).closest("label").removeClass("w--redirected-checked");
         if (licenseDetailsFront) { 
           licenseDetailsFront.style.display = "none"; 
           clearFieldError($(licenseDetailsFront));
+          console.log("[Step 2] selfDrive unchecked; license front hidden.");
         }
         if (licenseDetailsBack) { 
           licenseDetailsBack.style.display = "none"; 
           clearFieldError($(licenseDetailsBack));
+          console.log("[Step 2] selfDrive unchecked; license back hidden.");
         }
       }
-      // Clear errors on driver options.
       clearFieldError($(withDriver).closest("label"));
       clearFieldError($(selfDrive).closest("label"));
     });
   }
 
   function validateStep2(e) {
+    console.log("[Step 2] Validating driver options.");
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
+      console.log("[Step 2] No driver option selected!");
       e.preventDefault();
       e.stopPropagation();
       fieldError($(withDriver).closest("label"));
@@ -133,10 +158,12 @@ $(document).ready(function () {
     if ($(selfDrive).is(":checked")) {
       var valid = true;
       if (licenseInputFront && !$(licenseInputFront).val()) {
+        console.log("[Step 2] License front not uploaded.");
         fieldError($(licenseDetailsFront));
         valid = false;
       }
       if (licenseInputBack && !$(licenseInputBack).val()) {
+        console.log("[Step 2] License back not uploaded.");
         fieldError($(licenseDetailsBack));
         valid = false;
       }
@@ -146,27 +173,31 @@ $(document).ready(function () {
         return false;
       }
     }
+    console.log("[Step 2] Validation passed.");
     return true;
   }
   var slider2 = document.getElementById("slider-2");
   if (slider2) {
     slider2.addEventListener("click", function (e) {
+      console.log("[Step 2] Slider 2 clicked.");
       if (validateStep2(e)) {
+        console.log("[Step 2] Proceeding to Step 3.");
         Webflow.push(function () {
-          // Proceed to Step 3.
+          // Navigation logic to Step 3.
         });
       }
     }, true);
   }
 
-  // Clear file errors immediately in Step 2.
   if (licenseInputFront) {
     $(licenseInputFront).on("change click", function () {
+      console.log("[Step 2] License front input interaction.");
       clearFieldError($(licenseDetailsFront));
     });
   }
   if (licenseInputBack) {
     $(licenseInputBack).on("change click", function () {
+      console.log("[Step 2] License back input interaction.");
       clearFieldError($(licenseDetailsBack));
     });
   }
@@ -179,24 +210,35 @@ $(document).ready(function () {
   var flightTime = document.getElementById("flight-time");
   var nextStepBtn2 = rentForm.querySelector("#slider-3");
   var fp2 = flatpickr(datePickers[1], { minDate: "today", mode: "range" });
+  console.log("[Step 3] Initialized.");
   $(datePickers[1]).removeAttr("wr-type required");
   if (flightNumber) { $(flightNumber).removeAttr("wr-type required"); }
   if (flightTime) { $(flightTime).removeAttr("wr-type required"); }
   $(datePickers[1]).on("input change", function () {
-    if ($(this).val()) { clearFieldError($(this)); }
+    if ($(this).val()) { 
+      console.log("[Step 3] Pickup dates updated:", $(this).val());
+      clearFieldError($(this)); 
+    }
   });
   if (flightNumber) {
     $(flightNumber).on("input change", function () {
-      if ($(this).val()) { clearFieldError($(this)); }
+      if ($(this).val()) { 
+        console.log("[Step 3] Flight number updated:", $(this).val());
+        clearFieldError($(this)); 
+      }
     });
   }
   if (flightTime) {
     $(flightTime).on("input change", function () {
-      if ($(this).val()) { clearFieldError($(this)); }
+      if ($(this).val()) { 
+        console.log("[Step 3] Flight time updated:", $(this).val());
+        clearFieldError($(this)); 
+      }
     });
   }
   if (airportPickup) {
     airportPickup.addEventListener("change", function () {
+      console.log("[Step 3] Airport Pickup changed. Checked:", airportPickup.checked);
       if (!airportPickup.checked) {
         clearFieldError($(flightNumber));
         clearFieldError($(flightTime));
@@ -205,6 +247,7 @@ $(document).ready(function () {
     });
   }
   function checkForm3(e) {
+    console.log("[Step 3] Validating Airport Pickup details.");
     var errors = [];
     if (airportPickup && airportPickup.checked) {
       if (!flightNumber || !flightNumber.value) { errors.push("#flight-number"); }
@@ -212,35 +255,35 @@ $(document).ready(function () {
       if (!datePickers[1].value) { errors.push($(datePickers[1])); }
     }
     if (errors.length > 0) {
+      console.log("[Step 3] Errors found:", errors);
       e.preventDefault();
       e.stopPropagation();
       errors.forEach(function (selector) {
         fieldError(selector.jquery ? selector : $(selector));
       });
+    } else {
+      console.log("[Step 3] Validation passed.");
     }
   }
   if (nextStepBtn2) { nextStepBtn2.addEventListener("click", checkForm3, true); }
 
   // --------------------------------------------------------------
-  // Step 4: Out of Accra – Region Selection
+  // Step 4: Out of Accra – Region Selection Validation
   // --------------------------------------------------------------
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
+  console.log("[Step 4] Initialized.");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // No blocking validation for this step.
+    console.log("[Step 4] No blocking validation; proceeding.");
   }
   if (nextStepBtn3) {
-    nextStepBtn3.addEventListener("click", function (e) {
+    nextStepBtn3.addEventListener("click", function (e) { 
       checkForm4(e);
+      console.log("[Step 4] Proceeding from Step 4.");
     }, true);
   }
-  // Remove unchecked region checkboxes so that only checked ones are submitted.
-  $("#wf-form-Rent-Form").on("submit", function () {
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
-      if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
-    });
-  });
+  // (Region checkbox cleanup removed as per request.)
 
   // --------------------------------------------------------------
   // Step 5: Passport Upload Validation
@@ -249,15 +292,18 @@ $(document).ready(function () {
   var uploadBackContainer = document.getElementById("id-upload-back");
   var frontInput = uploadFrontContainer ? uploadFrontContainer.querySelector("input[type='file']") : null;
   var backInput = uploadBackContainer ? uploadBackContainer.querySelector("input[type='file']") : null;
+  console.log("[Step 5] Passport upload containers:", uploadFrontContainer, uploadBackContainer);
   if (frontInput) { $(frontInput).attr("wr-type", "required-field"); }
   if (backInput) { $(backInput).attr("wr-type", "required-field"); }
   
-  // Passport Upload Change Events: Clear errors on interaction.
   if (frontInput) {
     $(frontInput).on("change click", function () {
+      console.log("[Step 5] Front passport file input triggered.");
       clearFieldError($(uploadFrontContainer));
       setTimeout(function () {
-        if ($(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0) {
+        var frontHasValue = $(frontInput).val().trim() !== "";
+        console.log("[Step 5] Front input value present:", frontHasValue);
+        if (frontHasValue) {
           clearFieldError($(uploadFrontContainer));
         }
       }, 700);
@@ -265,50 +311,70 @@ $(document).ready(function () {
   }
   if (backInput) {
     $(backInput).on("change click", function () {
+      console.log("[Step 5] Back passport file input triggered.");
       clearFieldError($(uploadBackContainer));
       setTimeout(function () {
-        if ($(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0) {
+        var backHasValue = $(backInput).val().trim() !== "";
+        console.log("[Step 5] Back input value present:", backHasValue);
+        if (backHasValue) {
           clearFieldError($(uploadBackContainer));
         }
       }, 700);
     });
   }
-  
+
   // --------------------------------------------------------------
-  // Final Submission: Validate Only Passport Upload (Step 5)
+  // Final Submission Handler
   // --------------------------------------------------------------
-  $("#wf-form-Rent-Form").off("submit");
-  $("#wf-form-Rent-Form").on("submit", function (e) {
-    // Clear all custom error states.
+  $("#wf-form-Rent-Form").off("submit.finalValidation");
+  $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
+    console.log("[Final Submission] Triggered.");
+
+    // Remove required attributes from fields that might be hidden
+    $(this).find("input[required]").removeAttr("required");
+    
+    // Clear all previous error states.
     $('[wr-type="error"]').hide();
     $(".error").removeClass("error");
-    
-    // Clean up region checkboxes.
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
-      if (!$(this).is(":checked")) { $(this).removeAttr("name"); }
-    });
-    
-    var valid = true;
+
+    // Validate Email and Phone fields.
+    var emailInput = rentForm.querySelector('input[name="Email-Adress"]');
+    var phoneInput = rentForm.querySelector('input[name="Phone-Number"]');
+    var emailValid = emailInput && $(emailInput).val().trim() !== "";
+    var phoneValid = phoneInput && $(phoneInput).val().trim() !== "";
+    if (!emailValid) {
+      console.log("[Final Submission] Email is missing.");
+      fieldError($(emailInput));
+    }
+    if (!phoneValid) {
+      console.log("[Final Submission] Phone number is missing.");
+      fieldError($(phoneInput));
+    }
+    var valid = emailValid && phoneValid;
+
     // Validate passport uploads.
     if (frontInput) {
-      var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
-      if (!frontUploaded) {
+      var frontHasFile = $(frontInput).val().trim() !== "";
+      console.log("[Final Submission] Front passport file uploaded:", frontHasFile);
+      if (!frontHasFile) {
         fieldError($(uploadFrontContainer));
         valid = false;
       }
     }
     if (backInput) {
-      var backUploaded = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
-      if (!backUploaded) {
+      var backHasFile = $(backInput).val().trim() !== "";
+      console.log("[Final Submission] Back passport file uploaded:", backHasFile);
+      if (!backHasFile) {
         fieldError($(uploadBackContainer));
         valid = false;
       }
     }
     if (!valid) {
+      console.log("[Final Submission] Validation failed. Preventing submission.");
       e.preventDefault();
       e.stopPropagation();
     } else {
-      // Hide errors before submission.
+      console.log("[Final Submission] Validation passed. Submitting form.");
       $('[wr-type="error"]').hide();
     }
   });
@@ -327,16 +393,19 @@ $(document).ready(function () {
   if (airportDetails) { airportDetails.style.display = "none"; }
   if (checkboxLocation && locationDetails) {
     checkboxLocation.addEventListener("click", function () {
+      console.log("[Customization] Out-Of-Accra toggled. Checked:", checkboxLocation.checked);
       locationDetails.style.display = checkboxLocation.checked ? "block" : "none";
     });
   }
   if (checkboxLicense && licenseDetails) {
     checkboxLicense.addEventListener("click", function () {
+      console.log("[Customization] self-drive toggled for regions. Checked:", checkboxLicense.checked);
       licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
     });
   }
   if (checkboxPickup && airportDetails) {
     checkboxPickup.addEventListener("click", function () {
+      console.log("[Customization] Airport pickup toggled. Checked:", checkboxPickup.checked);
       airportDetails.style.display = checkboxPickup.checked ? "block" : "none";
     });
   }
@@ -371,6 +440,7 @@ $(document).ready(function () {
     var pageNameInput = document.getElementById("page-name");
     if (model && carName) {
       var modelInfo = model.textContent + " " + carName.textContent;
+      console.log("[Populate] Model info:", modelInfo);
       if (modelInput1) { modelInput1.value = modelInfo; }
       if (modelInput2) { modelInput2.value = modelInfo; }
       if (modelInput3) { modelInput3.value = modelInfo; }
