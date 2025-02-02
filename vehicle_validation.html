@@ -3,7 +3,7 @@ $(document).ready(function () {
   "use strict";
   console.log("[Global] Script initialized.");
 
-  // Disable native HTML5 validation on the form.
+  // Disable native HTML5 validation.
   $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
 
   // --------------------------------------------------------------
@@ -14,7 +14,6 @@ $(document).ready(function () {
   $('[wr-type="required-field"]').removeClass("error");
   var formErrors = false;
 
-  // Utility: Mark a field as having an error.
   function fieldError($field) {
     console.log("[fieldError] Triggered on:", $field);
     var errorElem = $field.siblings('[wr-type="error"]');
@@ -27,7 +26,6 @@ $(document).ready(function () {
     console.log("[fieldError] Error shown for:", $field);
   }
 
-  // Utility: Clear a field's error.
   function clearFieldError($field) {
     console.log("[clearFieldError] Clearing errors on:", $field);
     $field.removeClass("error");
@@ -69,6 +67,7 @@ $(document).ready(function () {
   var licenseDetailsBack = document.getElementById("license-details-back");
   console.log("[Step 2] License details front:", licenseDetailsFront, "back:", licenseDetailsBack);
 
+  // Default states: none selected.
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -88,15 +87,17 @@ $(document).ready(function () {
     console.log("[Step 2] License back hidden.");
   }
 
+  // Retrieve file inputs.
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
   console.log("[Step 2] licenseInputFront:", licenseInputFront, "licenseInputBack:", licenseInputBack);
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
 
+  // "With Driver" change event.
   if (withDriver) {
     withDriver.addEventListener("change", function () {
-      console.log("[Step 2] withDriver changed. Checked:", $(withDriver).is(":checked"));
+      console.log("[Step 2] withDriver change. Checked:", $(withDriver).is(":checked"));
       if ($(withDriver).is(":checked")) {
         if (selfDrive) {
           selfDrive.checked = false;
@@ -111,9 +112,10 @@ $(document).ready(function () {
     });
   }
 
+  // "Self Drive" change event.
   if (selfDrive) {
     selfDrive.addEventListener("change", function () {
-      console.log("[Step 2] selfDrive changed. Checked:", $(selfDrive).is(":checked"));
+      console.log("[Step 2] selfDrive change. Checked:", $(selfDrive).is(":checked"));
       if ($(selfDrive).is(":checked")) {
         if (withDriver) {
           withDriver.checked = false;
@@ -284,14 +286,7 @@ $(document).ready(function () {
       console.log("[Step 4] Proceeding from Step 4.");
     }, true);
   }
-  $("#wf-form-Rent-Form").on("submit", function () {
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
-      if (!$(this).is(":checked")) { 
-        console.log("[Step 4] Removing unchecked region checkbox:", this);
-        $(this).removeAttr("name"); 
-      }
-    });
-  });
+  // (Removed region cleanup code as per request.)
 
   // --------------------------------------------------------------
   // Step 5: Passport Upload Validation
@@ -309,9 +304,10 @@ $(document).ready(function () {
       console.log("[Step 5] Front passport file input triggered.");
       clearFieldError($(uploadFrontContainer));
       setTimeout(function () {
-        var frontSuccess = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length;
-        console.log("[Step 5] Front upload success count:", frontSuccess);
-        if (frontSuccess > 0) {
+        // Check by file input value as backup.
+        var frontHasValue = $(frontInput).val() !== "";
+        console.log("[Step 5] Front input value present:", frontHasValue);
+        if (frontHasValue) {
           clearFieldError($(uploadFrontContainer));
         }
       }, 700);
@@ -322,9 +318,9 @@ $(document).ready(function () {
       console.log("[Step 5] Back passport file input triggered.");
       clearFieldError($(uploadBackContainer));
       setTimeout(function () {
-        var backSuccess = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length;
-        console.log("[Step 5] Back upload success count:", backSuccess);
-        if (backSuccess > 0) {
+        var backHasValue = $(backInput).val() !== "";
+        console.log("[Step 5] Back input value present:", backHasValue);
+        if (backHasValue) {
           clearFieldError($(uploadBackContainer));
         }
       }, 700);
@@ -337,32 +333,39 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").off("submit.finalValidation");
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
-    // Clear all error states.
+    // Clear all previous errors.
     $('[wr-type="error"]').hide();
     $(".error").removeClass("error");
 
-    // Clean up region checkboxes.
-    $(".multi-select-wrap input[type='checkbox']").each(function () {
-      if (!$(this).is(":checked")) { 
-        console.log("[Final Submission] Removing unchecked region checkbox:", this);
-        $(this).removeAttr("name"); 
-      }
-    });
-    
-    var valid = true;
+    // Validate Email and Phone.
+    var emailInput = rentForm.querySelector('input[name="Email-Adress"]');
+    var phoneInput = rentForm.querySelector('input[name="Phone-Number"]');
+    var emailValid = emailInput && $(emailInput).val().trim() !== "";
+    var phoneValid = phoneInput && $(phoneInput).val().trim() !== "";
+    if (!emailValid) {
+      console.log("[Final Submission] Email is missing.");
+      fieldError($(emailInput));
+    }
+    if (!phoneValid) {
+      console.log("[Final Submission] Phone number is missing.");
+      fieldError($(phoneInput));
+    }
+
+    var valid = emailValid && phoneValid;
+
     // Validate passport uploads.
     if (frontInput) {
-      var frontUploaded = $(uploadFrontContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
-      console.log("[Final Submission] Front passport uploaded:", frontUploaded);
-      if (!frontUploaded) {
+      var frontHasFile = $(frontInput).val().trim() !== "";
+      console.log("[Final Submission] Front passport file uploaded:", frontHasFile);
+      if (!frontHasFile) {
         fieldError($(uploadFrontContainer));
         valid = false;
       }
     }
     if (backInput) {
-      var backUploaded = $(uploadBackContainer).find(".w-file-upload-success:not(.w-hidden)").length > 0;
-      console.log("[Final Submission] Back passport uploaded:", backUploaded);
-      if (!backUploaded) {
+      var backHasFile = $(backInput).val().trim() !== "";
+      console.log("[Final Submission] Back passport file uploaded:", backHasFile);
+      if (!backHasFile) {
         fieldError($(uploadBackContainer));
         valid = false;
       }
@@ -372,7 +375,7 @@ $(document).ready(function () {
       e.preventDefault();
       e.stopPropagation();
     } else {
-      console.log("[Final Submission] Validation passed. Submitting form.");
+      console.log("[Final Submission] Validation passed. Form will be submitted.");
       $('[wr-type="error"]').hide();
     }
   });
@@ -397,7 +400,7 @@ $(document).ready(function () {
   }
   if (checkboxLicense && licenseDetails) {
     checkboxLicense.addEventListener("click", function () {
-      console.log("[Customization] Self-drive toggled for regions. Checked:", checkboxLicense.checked);
+      console.log("[Customization] self-drive (for regions) toggled. Checked:", checkboxLicense.checked);
       licenseDetails.style.display = checkboxLicense.checked ? "block" : "none";
     });
   }
