@@ -316,17 +316,17 @@ $(document).ready(function () {
   if (frontInput) {
     $(frontInput).on("change", function () {
       if ($(this).val()) {
-        // Clear error from the parent .passport_details container.
-        $(this).closest(".passport_details").find('[wr-type="error"]').hide();
-        $(this).closest("#id-upload-front").removeClass("error");
+        // Clear error from the front upload container.
+        $(uploadFrontContainer).closest(".passport_details").find('[wr-type="error"]').hide();
+        $(uploadFrontContainer).removeClass("error");
       }
     });
   }
   if (backInput) {
     $(backInput).on("change", function () {
       if ($(this).val()) {
-        $(this).closest(".passport_details").find('[wr-type="error"]').hide();
-        $(this).closest("#id-upload-back").removeClass("error");
+        $(uploadBackContainer).closest(".passport_details").find('[wr-type="error"]').hide();
+        $(uploadBackContainer).removeClass("error");
       }
     });
   }
@@ -342,7 +342,10 @@ $(document).ready(function () {
       fieldError($(uploadBackContainer));
       valid = false;
     }
-    if (!valid) {
+    // If form is valid, hide all error messages before redirection.
+    if (valid) {
+      $('[wr-type="error"]').hide();
+    } else {
       e.preventDefault();
       e.stopPropagation();
     }
