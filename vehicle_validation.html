@@ -43,6 +43,7 @@ $(document).ready(function () {
   var datePickers = rentForm.querySelectorAll(".flatpickr-input");
   var getStartedBtn = rentForm.querySelector("#slider-1");
   var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
+  
   function checkForm(e) {
     console.log("[Step 1] Checking dates.");
     if (!datePickers[0].value) {
@@ -330,12 +331,25 @@ $(document).ready(function () {
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
     console.log("[Final Submission] Triggered.");
 
+    // --- New Code: Collect selected region values ---
+    var selectedRegions = [];
+    $('input[name="regions[]"]:checked').each(function() {
+      var regionValue = $(this).attr('data-ms-value');
+      if (regionValue) {
+        selectedRegions.push(regionValue);
+      }
+    });
+    // Set the comma-separated region values in the hidden input.
+    $('#selectedRegions').val(selectedRegions.join(', '));
+    console.log("[Final Submission] Selected Regions:", $('#selectedRegions').val());
+    // --------------------------------------------------
+
+    // Cleanup multi-select checkboxes so that unchecked ones do not submit
     $(".multi-select-wrap input[type='checkbox']").each(function () {
-  if (!$(this).is(":checked")) {
-    // Remove the name so unchecked items do not appear in the form submission
-    $(this).removeAttr("name");
-  }
-});
+      if (!$(this).is(":checked")) {
+        $(this).removeAttr("name");
+      }
+    });
 
     // Remove required attributes from fields that might be hidden
     $(this).find("input[required]").removeAttr("required");
@@ -386,8 +400,6 @@ $(document).ready(function () {
     }
   });
 
-  
-  
   // --------------------------------------------------------------
   // Form Customization: Toggle Display for Optional Sections
   // --------------------------------------------------------------
