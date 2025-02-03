@@ -2,13 +2,14 @@
 $(document).ready(function () {
   "use strict";
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Delegated Event Binding for Region Checkboxes (Live Update)
      ----------------------------------------------------------------------------
-     - This code listens for changes on any checkbox with name "regions[]"
-     - It builds a comma‑separated string from the checked checkboxes’ 
-       data-ms-value attributes and stores it in the hidden input #selectedRegions.
-  ---------------------------------------------------------------------------- */
+     This block listens for changes on any checkbox with name "regions[]"
+     and builds a comma-separated string from the checked checkboxes’ 
+     data-ms-value attributes. The result is stored in the hidden input 
+     with id "selectedRegions".
+  ============================================================================ */
   $(document).on("change", 'input[name="regions[]"]', function() {
     var liveRegions = [];
     $('input[name="regions[]"]').each(function() {
@@ -19,14 +20,14 @@ $(document).ready(function () {
     $("#selectedRegions").val(liveRegions.join(", "));
   });
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Disable Native HTML5 Form Validation
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Global Setup & Utility Functions
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   $("input[type=file]").attr("multiple", "multiple");
   $('[wr-type="error"]').hide();
   $('[wr-type="required-field"]').removeClass("error");
@@ -53,14 +54,15 @@ $(document).ready(function () {
     errorElem.hide();
   }
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Step 1: Date Selection
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   var rentForm = document.getElementById("wf-form-Rent-Form");
   var datePickers = rentForm.querySelectorAll(".flatpickr-input");
   var getStartedBtn = rentForm.querySelector("#slider-1");
   var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
   
+  // Ensure a date is selected.
   function checkForm(e) {
     if (!datePickers[0].value) {
       e.preventDefault();
@@ -70,9 +72,9 @@ $(document).ready(function () {
   }
   getStartedBtn.addEventListener("click", checkForm, true);
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Step 2: Driver Option & License Upload Validation
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
   var licenseDetailsFront = document.getElementById("license-details-front");
@@ -97,7 +99,7 @@ $(document).ready(function () {
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
   
-  // Update driver option display on change.
+  // Toggle driver options and license uploads.
   if (withDriver) {
     withDriver.addEventListener("change", function () {
       if ($(withDriver).is(":checked")) {
@@ -190,9 +192,9 @@ $(document).ready(function () {
     });
   }
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Step 3: Airport Pickup Details
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   var airportPickup = document.getElementById("airport-pickup");
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
@@ -246,14 +248,14 @@ $(document).ready(function () {
     nextStepBtn2.addEventListener("click", checkForm3, true);
   }
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Step 4: Out of Accra – Region Selection
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // No blocking validation; simply proceed.
+    // No blocking validation for this step.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) {
@@ -261,9 +263,9 @@ $(document).ready(function () {
     }, true);
   }
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Step 5: Passport Upload Validation
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   var uploadFrontContainer = document.getElementById("id-upload-front");
   var uploadBackContainer = document.getElementById("id-upload-back");
   var frontInput = uploadFrontContainer ? uploadFrontContainer.querySelector("input[type='file']") : null;
@@ -290,15 +292,14 @@ $(document).ready(function () {
     });
   }
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Final Submission Handler
-     - We now bind directly to the "submit" event so that Webflow's native submission
-       includes all fields (such as CarName and Page).
-     - This handler processes region checkboxes, updates the hidden field, and then
-       removes the original region checkboxes from the DOM.
-  ---------------------------------------------------------------------------- */
+     - Bound directly to the "submit" event so that all fields are included.
+     - This handler processes region checkboxes, updates the hidden field, and
+       then removes the original checkboxes from the DOM.
+  ============================================================================ */
   $("#wf-form-Rent-Form").on("submit", function (e) {
-    // Process region checkboxes: build array from checked checkboxes.
+    // Process region checkboxes.
     var selectedRegions = [];
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
@@ -306,12 +307,11 @@ $(document).ready(function () {
         selectedRegions.push($checkbox.attr("data-ms-value").trim());
       }
     });
-    // Update the hidden field "selectedRegions" with the joined region names.
     $("#selectedRegions").val(selectedRegions.join(", "));
-    // Remove region checkboxes so that they do not submit unwanted values.
+    // Remove the region checkboxes from the DOM so they are not submitted.
     $('input[name="regions[]"]').remove();
     
-    // Cleanup other multi-select checkboxes if needed.
+    // Cleanup other multi-select checkboxes so that unchecked ones are not submitted.
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) {
         $(this).removeAttr("name");
@@ -352,9 +352,9 @@ $(document).ready(function () {
     }
   });
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Form Customization: Toggle Display for Optional Sections
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   var checkboxLocation = document.getElementById("Out-Of-Accra");
   var checkboxLicense = document.getElementById("self-drive");
   var checkboxPickup = document.getElementById("airport-pickup");
@@ -380,9 +380,9 @@ $(document).ready(function () {
     });
   }
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Search Feature for Out of Accra
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   $(".on-page-search").on("keyup", function () {
     var searchVal = $(this).val();
     $(".results").removeClass("results");
@@ -397,9 +397,9 @@ $(document).ready(function () {
     });
   });
   
-  /* ----------------------------------------------------------------------------
+  /* ============================================================================
      Populate CarName and Page URL on Window Load
-  ---------------------------------------------------------------------------- */
+  ============================================================================ */
   $(window).on("load", function () {
     var carName = document.getElementById("car-name");
     var modelInput1 = document.getElementById("Vehicle-Model-Number");
