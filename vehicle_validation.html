@@ -2,26 +2,38 @@
 $(document).ready(function () {
   "use strict";
 
-  // Delegated event binding for region checkboxes to update the hidden field live.
+  /* ----------------------------------------------------------------------------
+     Delegated Event Binding for Region Checkboxes (Live Update)
+     - This block listens for changes on any checkbox with name "regions[]"
+     - It builds a comma-separated string from the checked checkboxes' data-ms-value
+     - The result is stored in the hidden input with id "selectedRegions"
+     ---------------------------------------------------------------------------- */
   $(document).on("change", 'input[name="regions[]"]', function() {
     var liveRegions = [];
+    // Iterate over each region checkbox and, if checked, add its custom value to the array
     $('input[name="regions[]"]').each(function() {
       if ($(this).is(":checked")) {
         liveRegions.push($(this).attr("data-ms-value").trim());
       }
     });
+    // Update the hidden input with the joined region names
     $("#selectedRegions").val(liveRegions.join(", "));
   });
   
-  // Disable native HTML5 validation on the form.
+  // ----------------------------------------------------------------------------
+  // Disable Native HTML5 Form Validation
+  // ----------------------------------------------------------------------------
   $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
   
+  // ----------------------------------------------------------------------------
   // Global Setup & Utility Functions
+  // ----------------------------------------------------------------------------
   $("input[type=file]").attr("multiple", "multiple");
   $('[wr-type="error"]').hide();
   $('[wr-type="required-field"]').removeClass("error");
   var formErrors = false;
   
+  // Display error on a field
   function fieldError($field) {
     var errorElem = $field.siblings('[wr-type="error"]');
     if (errorElem.length === 0) {
@@ -32,6 +44,7 @@ $(document).ready(function () {
     formErrors = true;
   }
   
+  // Clear error from a field
   function clearFieldError($field) {
     $field.removeClass("error");
     var errorElem = $field.siblings('[wr-type="error"]');
@@ -41,12 +54,15 @@ $(document).ready(function () {
     errorElem.hide();
   }
   
+  // ----------------------------------------------------------------------------
   // Step 1: Date Selection
+  // ----------------------------------------------------------------------------
   var rentForm = document.getElementById("wf-form-Rent-Form");
   var datePickers = rentForm.querySelectorAll(".flatpickr-input");
   var getStartedBtn = rentForm.querySelector("#slider-1");
   var fp1 = flatpickr(datePickers[0], { minDate: "today", mode: "range" });
   
+  // Check that a date is selected
   function checkForm(e) {
     if (!datePickers[0].value) {
       e.preventDefault();
@@ -56,13 +72,16 @@ $(document).ready(function () {
   }
   getStartedBtn.addEventListener("click", checkForm, true);
   
+  // ----------------------------------------------------------------------------
   // Step 2: Driver Option & License Upload Validation
+  // ----------------------------------------------------------------------------
   var withDriver = document.getElementById("with-driver");
   var selfDrive = document.getElementById("self-drive");
   
   var licenseDetailsFront = document.getElementById("license-details-front");
   var licenseDetailsBack = document.getElementById("license-details-back");
   
+  // Reset checkboxes for driver options
   if (withDriver) {
     $(withDriver).prop("checked", false).removeAttr("checked");
     $(withDriver).closest("label").removeClass("w--redirected-checked");
@@ -71,18 +90,17 @@ $(document).ready(function () {
     $(selfDrive).prop("checked", false).removeAttr("checked");
     $(selfDrive).closest("label").removeClass("w--redirected-checked");
   }
-  if (licenseDetailsFront) {
-    licenseDetailsFront.style.display = "none";
-  }
-  if (licenseDetailsBack) {
-    licenseDetailsBack.style.display = "none";
-  }
+  
+  // Hide license upload sections by default
+  if (licenseDetailsFront) { licenseDetailsFront.style.display = "none"; }
+  if (licenseDetailsBack) { licenseDetailsBack.style.display = "none"; }
   
   var licenseInputFront = licenseDetailsFront ? licenseDetailsFront.querySelector("input[type='file']") : null;
   var licenseInputBack = licenseDetailsBack ? licenseDetailsBack.querySelector("input[type='file']") : null;
   if (licenseInputFront) { $(licenseInputFront).attr("wr-type", "required-field"); }
   if (licenseInputBack) { $(licenseInputBack).attr("wr-type", "required-field"); }
   
+  // Update driver option display and clear errors on change
   if (withDriver) {
     withDriver.addEventListener("change", function () {
       if ($(withDriver).is(":checked")) {
@@ -107,12 +125,8 @@ $(document).ready(function () {
           $(withDriver).closest("label").removeClass("w--redirected-checked");
         }
         $(selfDrive).closest("label").addClass("w--redirected-checked");
-        if (licenseDetailsFront) {
-          licenseDetailsFront.style.display = "block";
-        }
-        if (licenseDetailsBack) {
-          licenseDetailsBack.style.display = "block";
-        }
+        if (licenseDetailsFront) { licenseDetailsFront.style.display = "block"; }
+        if (licenseDetailsBack) { licenseDetailsBack.style.display = "block"; }
       } else {
         $(selfDrive).closest("label").removeClass("w--redirected-checked");
         if (licenseDetailsFront) {
@@ -129,6 +143,7 @@ $(document).ready(function () {
     });
   }
   
+  // Validate driver options and license uploads if necessary
   function validateStep2(e) {
     if (!$(withDriver).is(":checked") && !$(selfDrive).is(":checked")) {
       e.preventDefault();
@@ -178,7 +193,9 @@ $(document).ready(function () {
     });
   }
   
+  // ----------------------------------------------------------------------------
   // Step 3: Airport Pickup Details
+  // ----------------------------------------------------------------------------
   var airportPickup = document.getElementById("airport-pickup");
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
@@ -188,22 +205,16 @@ $(document).ready(function () {
   if (flightNumber) { $(flightNumber).removeAttr("wr-type required"); }
   if (flightTime) { $(flightTime).removeAttr("wr-type required"); }
   $(datePickers[1]).on("input change", function () {
-    if ($(this).val()) {
-      clearFieldError($(this));
-    }
+    if ($(this).val()) { clearFieldError($(this)); }
   });
   if (flightNumber) {
     $(flightNumber).on("input change", function () {
-      if ($(this).val()) {
-        clearFieldError($(this));
-      }
+      if ($(this).val()) { clearFieldError($(this)); }
     });
   }
   if (flightTime) {
     $(flightTime).on("input change", function () {
-      if ($(this).val()) {
-        clearFieldError($(this));
-      }
+      if ($(this).val()) { clearFieldError($(this)); }
     });
   }
   if (airportPickup) {
@@ -235,12 +246,14 @@ $(document).ready(function () {
     nextStepBtn2.addEventListener("click", checkForm3, true);
   }
   
+  // ----------------------------------------------------------------------------
   // Step 4: Out of Accra – Region Selection
+  // ----------------------------------------------------------------------------
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
   function checkForm4(e) {
-    // No blocking validation; proceeding.
+    // No blocking validation; simply proceed.
   }
   if (nextStepBtn3) {
     nextStepBtn3.addEventListener("click", function (e) {
@@ -248,7 +261,9 @@ $(document).ready(function () {
     }, true);
   }
   
+  // ----------------------------------------------------------------------------
   // Step 5: Passport Upload Validation
+  // ----------------------------------------------------------------------------
   var uploadFrontContainer = document.getElementById("id-upload-front");
   var uploadBackContainer = document.getElementById("id-upload-back");
   var frontInput = uploadFrontContainer ? uploadFrontContainer.querySelector("input[type='file']") : null;
@@ -279,10 +294,12 @@ $(document).ready(function () {
     });
   }
   
+  // ----------------------------------------------------------------------------
   // Final Submission Handler
+  // ----------------------------------------------------------------------------
   $("#wf-form-Rent-Form").off("submit.finalValidation");
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
-    // Process region checkboxes.
+    // Process region checkboxes: build array from checked ones and update hidden field.
     var selectedRegions = [];
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
@@ -291,17 +308,17 @@ $(document).ready(function () {
       }
     });
     $("#selectedRegions").val(selectedRegions.join(", "));
-    // Remove region checkboxes so they are not submitted.
+    // Remove region checkboxes so that they are not submitted.
     $('input[name="regions[]"]').remove();
     
-    // Cleanup other multi-select checkboxes.
+    // Cleanup other multi-select checkboxes (if any) so that unchecked ones are not submitted.
     $(".multi-select-wrap input[type='checkbox']").each(function () {
       if (!$(this).is(":checked")) {
         $(this).removeAttr("name");
       }
     });
     
-    // Remove required attributes from hidden fields.
+    // Remove required attributes from any hidden fields.
     $(this).find("input[required]").removeAttr("required");
     
     // Clear previous error states.
@@ -342,7 +359,9 @@ $(document).ready(function () {
     }
   });
   
+  // ----------------------------------------------------------------------------
   // Form Customization: Toggle Display for Optional Sections
+  // ----------------------------------------------------------------------------
   var checkboxLocation = document.getElementById("Out-Of-Accra");
   var checkboxLicense = document.getElementById("self-drive");
   var checkboxPickup = document.getElementById("airport-pickup");
@@ -368,7 +387,9 @@ $(document).ready(function () {
     });
   }
   
+  // ----------------------------------------------------------------------------
   // Search Feature for Out of Accra
+  // ----------------------------------------------------------------------------
   $(".on-page-search").on("keyup", function () {
     var searchVal = $(this).val();
     $(".results").removeClass("results");
@@ -383,7 +404,9 @@ $(document).ready(function () {
     });
   });
   
+  // ----------------------------------------------------------------------------
   // Populate CarName and Page URL on Window Load
+  // ----------------------------------------------------------------------------
   $(window).on("load", function () {
     var carName = document.getElementById("car-name");
     var modelInput1 = document.getElementById("Vehicle-Model-Number");
