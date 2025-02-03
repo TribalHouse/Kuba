@@ -1,16 +1,26 @@
 <script>
-
-$(document).on("change", 'input[name="regions[]"]', function() {
-  console.log("Region checkbox changed:", this, "Checked?", $(this).is(":checked"), "data-ms-value:", $(this).attr("data-ms-value"));
-});
-
 $(document).ready(function () {
   "use strict";
   console.log("[Global] Script initialized.");
 
+  // --- Delegated event binding for live logging and live update ---
+  $(document).on("change", 'input[name="regions[]"]', function() {
+    console.log("Region checkbox changed:", this, "Checked?", $(this).is(":checked"), "data-ms-value:", $(this).attr("data-ms-value"));
+    // Build an array of checked region values:
+    var liveRegions = [];
+    $('input[name="regions[]"]').each(function() {
+      if ($(this).is(":checked")) {
+        liveRegions.push($(this).attr("data-ms-value").trim());
+      }
+    });
+    // Update the hidden (or visible for testing) field:
+    $("#selectedRegions").val(liveRegions.join(", "));
+    console.log("Live Selected Regions:", $("#selectedRegions").val());
+  });
+  
   // Disable native HTML5 validation on the form.
   $("#wf-form-Rent-Form").attr("novalidate", "novalidate");
-
+  
   // -----------------------------
   // Global Setup & Utility Functions
   // -----------------------------
@@ -344,15 +354,13 @@ $(document).ready(function () {
       var $checkbox = $(this);
       console.log("[Region] Checkbox:", $checkbox, "Checked?", $checkbox.is(":checked"), "data-ms-value:", $checkbox.attr("data-ms-value"));
       if ($checkbox.is(":checked")) {
-        // Grab the custom value from data-ms-value and add to array
         selectedRegions.push($checkbox.attr("data-ms-value").trim());
       }
     });
     console.log("[Final Submission] Regions array before joining:", selectedRegions);
-    // Set the joined string into the hidden input
     $("#selectedRegions").val(selectedRegions.join(", "));
     console.log("[Final Submission] Hidden field 'selectedRegions' value:", $("#selectedRegions").val());
-    // Remove the region checkboxes from the DOM so they aren't submitted.
+    // Remove the region checkboxes from the DOM so they are not submitted.
     $('input[name="regions[]"]').remove();
     // --- End region processing ---
     
