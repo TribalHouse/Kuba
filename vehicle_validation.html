@@ -174,9 +174,7 @@ $(document).ready(function () {
     });
   }
   
-  // -----------------------------
   // Step 3: Airport Pickup Details
-  // -----------------------------
   var airportPickup = document.getElementById("airport-pickup");
   var flightNumber = document.getElementById("flight-number");
   var flightTime = document.getElementById("flight-time");
@@ -233,9 +231,7 @@ $(document).ready(function () {
     nextStepBtn2.addEventListener("click", checkForm3, true);
   }
   
-  // -----------------------------
   // Step 4: Out of Accra – Region Selection
-  // -----------------------------
   var outOfAccra = document.getElementById("Out-Of-Accra");
   var nextStepBtn3 = rentForm.querySelector(".slide:nth-child(4) .slider-right.w-button");
   if (outOfAccra) { outOfAccra.removeAttribute("required"); }
@@ -246,9 +242,7 @@ $(document).ready(function () {
     }, true);
   }
   
-  // -----------------------------
   // Step 5: Passport Upload Validation
-  // -----------------------------
   var uploadFrontContainer = document.getElementById("id-upload-front");
   var uploadBackContainer = document.getElementById("id-upload-back");
   var frontInput = uploadFrontContainer ? uploadFrontContainer.querySelector("input[type='file']") : null;
@@ -279,12 +273,10 @@ $(document).ready(function () {
     });
   }
   
-  // -----------------------------
   // Final Submission Handler
-  // -----------------------------
   $("#wf-form-Rent-Form").off("submit.finalValidation");
   $("#wf-form-Rent-Form").on("submit.finalValidation", function (e) {
-    // Process region checkboxes:
+    // Process region checkboxes
     var selectedRegions = [];
     $('input[name="regions[]"]').each(function() {
       var $checkbox = $(this);
@@ -293,7 +285,7 @@ $(document).ready(function () {
       }
     });
     $("#selectedRegions").val(selectedRegions.join(", "));
-    // Remove the region checkboxes so they aren't submitted.
+    // Remove region checkboxes so they are not submitted
     $('input[name="regions[]"]').remove();
     
     // Cleanup other multi-select checkboxes (if any)
@@ -344,9 +336,7 @@ $(document).ready(function () {
     }
   });
   
-  // -----------------------------
   // Form Customization: Toggle Display for Optional Sections
-  // -----------------------------
   var checkboxLocation = document.getElementById("Out-Of-Accra");
   var checkboxLicense = document.getElementById("self-drive");
   var checkboxPickup = document.getElementById("airport-pickup");
@@ -372,9 +362,7 @@ $(document).ready(function () {
     });
   }
   
-  // -----------------------------
   // Search Feature for Out of Accra
-  // -----------------------------
   $(".on-page-search").on("keyup", function () {
     var searchVal = $(this).val();
     $(".results").removeClass("results");
@@ -389,9 +377,7 @@ $(document).ready(function () {
     });
   });
   
-  // -----------------------------
   // Populate CarName and Page URL on Window Load
-  // -----------------------------
   $(window).on("load", function () {
     var carName = document.getElementById("car-name");
     var modelInput1 = document.getElementById("Vehicle-Model-Number");
