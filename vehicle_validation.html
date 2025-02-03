@@ -1,4 +1,9 @@
 <script>
+
+$(document).on("change", 'input[name="regions[]"]', function() {
+  console.log("Region checkbox changed:", this, "Checked?", $(this).is(":checked"), "data-ms-value:", $(this).attr("data-ms-value"));
+});
+
 $(document).ready(function () {
   "use strict";
   console.log("[Global] Script initialized.");
